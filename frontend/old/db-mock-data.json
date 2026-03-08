@@ -1,0 +1,99 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "code": "game_action",
+      "name": "Action Games",
+      "lucide_icon": "crosshair",
+      "theme_color": "brand-500",
+      "is_active": true
+    },
+    {
+      "id": 2,
+      "code": "tools",
+      "name": "Tools",
+      "lucide_icon": "wrench",
+      "theme_color": "emerald-500",
+      "is_active": true
+    }
+  ],
+  "stores": [
+    {
+      "id": 1,
+      "name": "Google Play",
+      "code": "google_play",
+      "theme_color": "emerald-500"
+    },
+    {
+      "id": 2,
+      "name": "Apple App Store",
+      "code": "apple_app_store",
+      "theme_color": "blue-500"
+    }
+  ],
+  "apps": [
+    {
+      "id": 101,
+      "store_id": 1,
+      "category_id": 2,
+      "app_store_id": "com.example.supervpn",
+      "title": "Super VPN Fast Proxy",
+      "developer_name": "Secure Studio",
+      "icon_url": "https://play-lh.googleusercontent.com/supervpn-icon.png",
+      "store_url": "https://play.google.com/store/apps/details?id=com.example.supervpn",
+      "latest_update_date": "2026-02-25T10:00:00Z",
+      "is_tracking_metrics": true,
+      "is_bookmarked": true
+    },
+    {
+      "id": 102,
+      "store_id": 2,
+      "category_id": 1,
+      "app_store_id": "123456789",
+      "title": "Magic Survivor",
+      "developer_name": "Game Magic",
+      "icon_url": "https://is1-ssl.mzstatic.com/image/thumb/magic-survivor-icon.png",
+      "store_url": "https://apps.apple.com/us/app/magic-survivor/id123456789",
+      "latest_update_date": "2026-02-20T10:00:00Z",
+      "is_tracking_metrics": true,
+      "is_bookmarked": false
+    }
+  ],
+  "app_daily_metrics": [
+    {
+      "app_id": 101,
+      "record_date": "2026-02-25",
+      "min_installs": 10000000,
+      "rating_score": 4.5,
+      "total_ratings": 310000,
+      "estimated_daily_installs": 4500
+    },
+    {
+      "app_id": 101,
+      "record_date": "2026-02-26",
+      "min_installs": 10000000,
+      "rating_score": 4.51,
+      "total_ratings": 315000,
+      "estimated_daily_installs": 8200
+    },
+    {
+      "app_id": 101,
+      "record_date": "2026-02-27",
+      "min_installs": 10000000,
+      "rating_score": 4.52,
+      "total_ratings": 325000,
+      "estimated_daily_installs": 19500
+    }
+  ],
+  "notification_logs": [
+    {
+      "app_id": 101,
+      "trigger_rule": "NT2",
+      "message": "Super VPN Fast Proxy đạt Trigger NT2! D-1: 8200, D0: 19500",
+      "status": "SENT",
+      "sent_to_ua": true,
+      "sent_to_monetize": true,
+      "created_at": "2026-02-27T23:00:00Z"
+    }
+  ]
+}

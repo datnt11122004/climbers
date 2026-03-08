@@ -1,0 +1,5 @@
+.next/
+out/
+.yarn/
+.pnp.cjs
+.pnp.loader.mjs

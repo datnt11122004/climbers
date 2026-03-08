@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model TelegramUser {
+  id                 Int                  @id @default(autoincrement())
+  firstName          String               @map("first_name") @db.VarChar(255)
+  lastName           String               @map("last_name") @db.VarChar(255)
+  username           String?              @db.VarChar(255)
+  avatar             String?              @db.VarChar(500)
+  telegramId         BigInt               @unique @map("telegram_id")
+  role               UserRole             @default(USER)
+  language           String?              @default("en")
+  privateChatId      BigInt?              @map("private_chat_id")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  followedCategories UserCategoryFollow[]
+
+  @@map("telegram_users")
+}
+
+model Bot {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  token       String   @unique
+  active      Boolean  @default(false)
+  interactive Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("bots")
+}
+
+model AppCategory {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.VarChar(500)
+  icon        String?  @db.VarChar(50)
+  color       String?  @db.VarChar(30)
+  sortOrder   Int      @default(0) @map("sort_order")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  followers UserCategoryFollow[]
+
+  @@map("app_categories")
+}
+
+model UserCategoryFollow {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @map("user_id")
+  categoryId Int      @map("category_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user     TelegramUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category AppCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId])
+  @@map("user_category_follows")
+}

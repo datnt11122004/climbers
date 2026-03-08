@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climbers - Theo dõi App</title>
+    <meta name="description" content="Dashboard theo dõi các app có lượt tải tăng trưởng mạnh trên thị trường.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --font-sans: 'Inter', sans-serif;
+            --color-brand-50: #eef2ff;
+            --color-brand-100: #e0e7ff;
+            --color-brand-400: #818cf8;
+            --color-brand-500: #6366f1;
+            --color-brand-600: #4f46e5;
+            --color-brand-700: #4338ca;
+            --color-surface: #0f172a;
+            --color-surface-card: #1e293b;
+            --color-surface-hover: #334155;
+            --color-border: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #94a3b8;
+            --color-text-muted: #64748b;
+            --color-success: #22c55e;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-cyan: #06b6d4;
+        }
+    </style>
+    <style>
+        body {
+            background-color: #0f172a;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.1));
+            border-left: 3px solid #6366f1;
+            color: #e0e7ff;
+        }
+
+        .sidebar-link:not(.active):hover {
+            background: rgba(51, 65, 85, 0.5);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #818cf8, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sparkline {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 32px;
+        }
+
+        .sparkline-bar {
+            width: 4px;
+            border-radius: 2px;
+            background: linear-gradient(to top, #6366f1, #06b6d4);
+            transition: height 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .animate-in-delay-1 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+
+        .animate-in-delay-2 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        .row-hover:hover {
+            background: rgba(51, 65, 85, 0.3);
+        }
+
+        .tab-active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.1));
+            border-color: #6366f1;
+            color: #e0e7ff;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-text-primary min-h-screen">
+
+    <!-- Sidebar -->
+    <aside
+        class="fixed left-0 top-0 h-full w-64 bg-surface-card/80 backdrop-blur-xl border-r border-border z-50 flex flex-col">
+        <div class="p-6 border-b border-border">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-cyan flex items-center justify-center">
+                    <i data-lucide="mountain" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold gradient-text">CLIMBERS</h1>
+                    <p class="text-xs text-text-muted">Market Research Tool</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="index.html"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-text-secondary transition-all duration-200">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+            </a>
+            <a href="app-categories.html"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-text-secondary transition-all duration-200">
+                <i data-lucide="layers" class="w-5 h-5"></i> Theo dõi Dòng App
+            </a>
+            <a href="app-tracking.html"
+                class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200">
+                <i data-lucide="trending-up" class="w-5 h-5"></i> Theo dõi App
+            </a>
+            <a href="store-monitoring.html"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-text-secondary transition-all duration-200">
+                <i data-lucide="store" class="w-5 h-5"></i> Theo dõi Chợ
+            </a>
+            <a href="notifications.html"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-text-secondary transition-all duration-200">
+                <i data-lucide="bell" class="w-5 h-5"></i> Cài đặt Thông báo
+            </a>
+        </nav>
+        <div class="p-4 border-t border-border">
+            <div class="flex items-center gap-3 px-3">
+                <div
+                    class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-cyan flex items-center justify-center text-white text-sm font-semibold">
+                    UA</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate">UA Team</p>
+                    <p class="text-xs text-text-muted">ua@climbers.io</p>
+                </div>
+                <i data-lucide="log-out"
+                    class="w-4 h-4 text-text-muted cursor-pointer hover:text-text-primary transition-colors"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 p-8">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8 animate-in">
+            <div>
+                <h2 class="text-2xl font-bold">Theo dõi App</h2>
+                <p class="text-text-secondary text-sm mt-1">Dashboard các app có lượt tải tăng trưởng mạnh</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button
+                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-hover text-sm font-medium text-text-secondary hover:text-text-primary transition-all border border-border">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Export CSV
+                </button>
+                <button
+                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-hover text-sm font-medium text-text-secondary hover:text-text-primary transition-all border border-border">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    Refresh
+                </button>
+            </div>
+        </header>
+
+        <!-- Filters Bar -->
+        <div class="glass-card rounded-2xl p-5 mb-6 animate-in animate-in-delay-1">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Filter: Dòng app -->
+                <div class="flex-1 min-w-[180px]">
+                    <label class="text-xs font-medium text-text-muted mb-1.5 block">Dòng App</label>
+                    <select
+                        class="w-full px-3 py-2.5 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:border-brand-500 transition-colors text-text-primary">
+                        <option>Tất cả dòng</option>
+                        <option>Remote</option>
+                        <option>Money</option>
+                        <option>Loan</option>
+                        <option>PDF</option>
+                        <option>VPN</option>
+                        <option>Scanner</option>
+                        <option>Cleaner</option>
+                        <option>Weather</option>
+                    </select>
+                </div>
+                <!-- Filter: Trigger -->
+                <div class="flex-1 min-w-[150px]">
+                    <label class="text-xs font-medium text-text-muted mb-1.5 block">Trigger Rule</label>
+                    <select
+                        class="w-full px-3 py-2.5 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:border-brand-500 transition-colors text-text-primary">
+                        <option>Tất cả</option>
+                        <option>NT1 - Đẩy đều</option>
+                        <option>NT2 - Vụt lên</option>
+                    </select>
+                </div>
+                <!-- Filter: Ngày -->
+                <div class="flex-1 min-w-[180px]">
+                    <label class="text-xs font-medium text-text-muted mb-1.5 block">Khoảng thời gian</label>
+                    <select
+                        class="w-full px-3 py-2.5 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:border-brand-500 transition-colors text-text-primary">
+                        <option>Hôm nay</option>
+                        <option>7 ngày qua</option>
+                        <option>30 ngày qua</option>
+                        <option>Tùy chọn</option>
+                    </select>
+                </div>
+                <!-- Filter: Saved -->
+                <div class="flex-1 min-w-[150px]">
+                    <label class="text-xs font-medium text-text-muted mb-1.5 block">Trạng thái</label>
+                    <select
+                        class="w-full px-3 py-2.5 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:border-brand-500 transition-colors text-text-primary">
+                        <option>Tất cả</option>
+                        <option>Đã lưu</option>
+                        <option>Chưa lưu</option>
+                    </select>
+                </div>
+                <!-- Search -->
+                <div class="flex-1 min-w-[200px]">
+                    <label class="text-xs font-medium text-text-muted mb-1.5 block">Tìm kiếm</label>
+                    <div class="relative">
+                        <i data-lucide="search"
+                            class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"></i>
+                        <input type="text" placeholder="Tên app, URL..."
+                            class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:border-brand-500 transition-colors placeholder:text-text-muted">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab views -->
+        <div class="flex gap-2 mb-6 animate-in animate-in-delay-1">
+            <button
+                class="tab-active px-4 py-2 rounded-xl text-sm font-medium border border-transparent transition-all">
+                <i data-lucide="table-2" class="w-4 h-4 inline mr-1"></i> Bảng dữ liệu
+            </button>
+            <button
+                class="px-4 py-2 rounded-xl text-sm font-medium text-text-secondary border border-border hover:bg-surface-hover transition-all">
+                <i data-lucide="layout-grid" class="w-4 h-4 inline mr-1"></i> Dạng Card
+            </button>
+        </div>
+
+        <!-- Data Table -->
+        <div class="glass-card rounded-2xl overflow-hidden animate-in animate-in-delay-2">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-text-muted text-left border-b border-border bg-surface/50">
+                            <th class="px-6 py-4 font-medium">
+                                <input type="checkbox" class="rounded border-border bg-surface">
+                            </th>
+                            <th class="px-4 py-4 font-medium">App</th>
+                            <th class="px-4 py-4 font-medium">Dòng</th>
+                            <th class="px-4 py-4 font-medium text-right">D-2</th>
+                            <th class="px-4 py-4 font-medium text-right">D-1</th>
+                            <th class="px-4 py-4 font-medium text-right">D0</th>
+                            <th class="px-4 py-4 font-medium text-center">Trend</th>
+                            <th class="px-4 py-4 font-medium">Trigger</th>
+                            <th class="px-4 py-4 font-medium">Latest Update</th>
+                            <th class="px-4 py-4 font-medium text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        <!-- Row 1 -->
+                        <tr class="row-hover transition-colors">
+                            <td class="px-6 py-4"><input type="checkbox" class="rounded border-border bg-surface"></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                        RC</div>
+                                    <div>
+                                        <p class="font-semibold">Remote Control Pro</p>
+                                        <a href="#"
+                                            class="text-xs text-brand-400 hover:underline flex items-center gap-1 mt-0.5">
+                                            <i data-lucide="external-link" class="w-3 h-3"></i> play.google.com/rc-pro
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-full font-medium">Remote</span>
+                            </td>
+                            <td class="px-4 py-4 text-right font-mono">5,200</td>
+                            <td class="px-4 py-4 text-right font-mono">8,100</td>
+                            <td class="px-4 py-4 text-right font-mono font-semibold text-success">16,400</td>
+                            <td class="px-4 py-4">
+                                <div class="sparkline justify-center">
+                                    <div class="sparkline-bar" style="height:30%"></div>
+                                    <div class="sparkline-bar" style="height:45%"></div>
+                                    <div class="sparkline-bar" style="height:40%"></div>
+                                    <div class="sparkline-bar" style="height:55%"></div>
+                                    <div class="sparkline-bar" style="height:65%"></div>
+                                    <div class="sparkline-bar" style="height:80%"></div>
+                                    <div class="sparkline-bar" style="height:100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-danger/20 text-danger px-2.5 py-1 rounded-full font-bold">NT1</span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <p class="text-sm">v3.2.1</p>
+                                <p class="text-xs text-text-muted">25/02/2026</p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center hover:bg-brand-500/30 transition-colors"
+                                        title="Lưu vào watchlist">
+                                        <i data-lucide="bookmark" class="w-4 h-4 text-brand-400"></i>
+                                    </button>
+                                    <a href="#"
+                                        class="w-8 h-8 rounded-lg bg-cyan/20 flex items-center justify-center hover:bg-cyan/30 transition-colors"
+                                        title="Appstore Spy">
+                                        <i data-lucide="eye" class="w-4 h-4 text-cyan"></i>
+                                    </a>
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-warning/20 flex items-center justify-center hover:bg-warning/30 transition-colors"
+                                        title="Download Creative">
+                                        <i data-lucide="palette" class="w-4 h-4 text-warning"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr class="row-hover transition-colors">
+                            <td class="px-6 py-4"><input type="checkbox" class="rounded border-border bg-surface"></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                        MC</div>
+                                    <div>
+                                        <p class="font-semibold">Money Cash Reward</p>
+                                        <a href="#"
+                                            class="text-xs text-brand-400 hover:underline flex items-center gap-1 mt-0.5">
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                            play.google.com/money-cash
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-green-500/20 text-green-400 px-2.5 py-1 rounded-full font-medium">Money</span>
+                            </td>
+                            <td class="px-4 py-4 text-right font-mono">1,800</td>
+                            <td class="px-4 py-4 text-right font-mono">2,500</td>
+                            <td class="px-4 py-4 text-right font-mono font-semibold text-success">12,800</td>
+                            <td class="px-4 py-4">
+                                <div class="sparkline justify-center">
+                                    <div class="sparkline-bar" style="height:15%"></div>
+                                    <div class="sparkline-bar" style="height:18%"></div>
+                                    <div class="sparkline-bar" style="height:20%"></div>
+                                    <div class="sparkline-bar" style="height:22%"></div>
+                                    <div class="sparkline-bar" style="height:25%"></div>
+                                    <div class="sparkline-bar" style="height:40%"></div>
+                                    <div class="sparkline-bar" style="height:100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-warning/20 text-warning px-2.5 py-1 rounded-full font-bold">NT2</span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <p class="text-sm">v1.8.0</p>
+                                <p class="text-xs text-text-muted">24/02/2026</p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center hover:bg-brand-500/30 transition-colors"
+                                        title="Lưu vào watchlist">
+                                        <i data-lucide="bookmark" class="w-4 h-4 text-brand-400"></i>
+                                    </button>
+                                    <a href="#"
+                                        class="w-8 h-8 rounded-lg bg-cyan/20 flex items-center justify-center hover:bg-cyan/30 transition-colors"
+                                        title="Appstore Spy">
+                                        <i data-lucide="eye" class="w-4 h-4 text-cyan"></i>
+                                    </a>
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-warning/20 flex items-center justify-center hover:bg-warning/30 transition-colors"
+                                        title="Download Creative">
+                                        <i data-lucide="palette" class="w-4 h-4 text-warning"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr class="row-hover transition-colors">
+                            <td class="px-6 py-4"><input type="checkbox" class="rounded border-border bg-surface"></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                        LN</div>
+                                    <div>
+                                        <p class="font-semibold">Loan Calculator Plus</p>
+                                        <a href="#"
+                                            class="text-xs text-brand-400 hover:underline flex items-center gap-1 mt-0.5">
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                            play.google.com/loan-calc
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-pink-500/20 text-pink-400 px-2.5 py-1 rounded-full font-medium">Loan</span>
+                            </td>
+                            <td class="px-4 py-4 text-right font-mono">6,100</td>
+                            <td class="px-4 py-4 text-right font-mono">9,500</td>
+                            <td class="px-4 py-4 text-right font-mono font-semibold text-success">19,200</td>
+                            <td class="px-4 py-4">
+                                <div class="sparkline justify-center">
+                                    <div class="sparkline-bar" style="height:40%"></div>
+                                    <div class="sparkline-bar" style="height:50%"></div>
+                                    <div class="sparkline-bar" style="height:55%"></div>
+                                    <div class="sparkline-bar" style="height:60%"></div>
+                                    <div class="sparkline-bar" style="height:70%"></div>
+                                    <div class="sparkline-bar" style="height:85%"></div>
+                                    <div class="sparkline-bar" style="height:100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-danger/20 text-danger px-2.5 py-1 rounded-full font-bold">NT1</span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <p class="text-sm">v2.5.3</p>
+                                <p class="text-xs text-text-muted">26/02/2026</p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center hover:bg-brand-600 transition-colors"
+                                        title="Đã lưu">
+                                        <i data-lucide="bookmark" class="w-4 h-4 text-white fill-white"></i>
+                                    </button>
+                                    <a href="#"
+                                        class="w-8 h-8 rounded-lg bg-cyan/20 flex items-center justify-center hover:bg-cyan/30 transition-colors"
+                                        title="Appstore Spy">
+                                        <i data-lucide="eye" class="w-4 h-4 text-cyan"></i>
+                                    </a>
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-warning/20 flex items-center justify-center hover:bg-warning/30 transition-colors"
+                                        title="Download Creative">
+                                        <i data-lucide="palette" class="w-4 h-4 text-warning"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 4 -->
+                        <tr class="row-hover transition-colors">
+                            <td class="px-6 py-4"><input type="checkbox" class="rounded border-border bg-surface"></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                        VP</div>
+                                    <div>
+                                        <p class="font-semibold">VPN Shield Master</p>
+                                        <a href="#"
+                                            class="text-xs text-brand-400 hover:underline flex items-center gap-1 mt-0.5">
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                            play.google.com/vpn-shield
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-cyan/20 text-cyan px-2.5 py-1 rounded-full font-medium">VPN</span>
+                            </td>
+                            <td class="px-4 py-4 text-right font-mono">7,300</td>
+                            <td class="px-4 py-4 text-right font-mono">11,000</td>
+                            <td class="px-4 py-4 text-right font-mono font-semibold text-success">22,500</td>
+                            <td class="px-4 py-4">
+                                <div class="sparkline justify-center">
+                                    <div class="sparkline-bar" style="height:35%"></div>
+                                    <div class="sparkline-bar" style="height:42%"></div>
+                                    <div class="sparkline-bar" style="height:48%"></div>
+                                    <div class="sparkline-bar" style="height:56%"></div>
+                                    <div class="sparkline-bar" style="height:68%"></div>
+                                    <div class="sparkline-bar" style="height:82%"></div>
+                                    <div class="sparkline-bar" style="height:100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-danger/20 text-danger px-2.5 py-1 rounded-full font-bold">NT1</span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <p class="text-sm">v4.1.2</p>
+                                <p class="text-xs text-text-muted">25/02/2026</p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center hover:bg-brand-600 transition-colors"
+                                        title="Đã lưu">
+                                        <i data-lucide="bookmark" class="w-4 h-4 text-white fill-white"></i>
+                                    </button>
+                                    <a href="#"
+                                        class="w-8 h-8 rounded-lg bg-cyan/20 flex items-center justify-center hover:bg-cyan/30 transition-colors"
+                                        title="Appstore Spy">
+                                        <i data-lucide="eye" class="w-4 h-4 text-cyan"></i>
+                                    </a>
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-warning/20 flex items-center justify-center hover:bg-warning/30 transition-colors"
+                                        title="Download Creative">
+                                        <i data-lucide="palette" class="w-4 h-4 text-warning"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 5 -->
+                        <tr class="row-hover transition-colors">
+                            <td class="px-6 py-4"><input type="checkbox" class="rounded border-border bg-surface"></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                        PD</div>
+                                    <div>
+                                        <p class="font-semibold">PDF Scanner Elite</p>
+                                        <a href="#"
+                                            class="text-xs text-brand-400 hover:underline flex items-center gap-1 mt-0.5">
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                            play.google.com/pdf-elite
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-orange-500/20 text-orange-400 px-2.5 py-1 rounded-full font-medium">PDF</span>
+                            </td>
+                            <td class="px-4 py-4 text-right font-mono">800</td>
+                            <td class="px-4 py-4 text-right font-mono">3,200</td>
+                            <td class="px-4 py-4 text-right font-mono font-semibold text-success">18,000</td>
+                            <td class="px-4 py-4">
+                                <div class="sparkline justify-center">
+                                    <div class="sparkline-bar" style="height:5%"></div>
+                                    <div class="sparkline-bar" style="height:8%"></div>
+                                    <div class="sparkline-bar" style="height:10%"></div>
+                                    <div class="sparkline-bar" style="height:15%"></div>
+                                    <div class="sparkline-bar" style="height:30%"></div>
+                                    <div class="sparkline-bar" style="height:55%"></div>
+                                    <div class="sparkline-bar" style="height:100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-warning/20 text-warning px-2.5 py-1 rounded-full font-bold">NT2</span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <p class="text-sm">v2.0.0</p>
+                                <p class="text-xs text-text-muted">26/02/2026</p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center hover:bg-brand-500/30 transition-colors"
+                                        title="Lưu vào watchlist">
+                                        <i data-lucide="bookmark" class="w-4 h-4 text-brand-400"></i>
+                                    </button>
+                                    <a href="#"
+                                        class="w-8 h-8 rounded-lg bg-cyan/20 flex items-center justify-center hover:bg-cyan/30 transition-colors"
+                                        title="Appstore Spy">
+                                        <i data-lucide="eye" class="w-4 h-4 text-cyan"></i>
+                                    </a>
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-warning/20 flex items-center justify-center hover:bg-warning/30 transition-colors"
+                                        title="Download Creative">
+                                        <i data-lucide="palette" class="w-4 h-4 text-warning"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 6 -->
+                        <tr class="row-hover transition-colors">
+                            <td class="px-6 py-4"><input type="checkbox" class="rounded border-border bg-surface"></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                        SC</div>
+                                    <div>
+                                        <p class="font-semibold">Smart Scanner DocX</p>
+                                        <a href="#"
+                                            class="text-xs text-brand-400 hover:underline flex items-center gap-1 mt-0.5">
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                            play.google.com/scanner-docx
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-yellow-500/20 text-yellow-400 px-2.5 py-1 rounded-full font-medium">Scanner</span>
+                            </td>
+                            <td class="px-4 py-4 text-right font-mono">4,800</td>
+                            <td class="px-4 py-4 text-right font-mono">7,200</td>
+                            <td class="px-4 py-4 text-right font-mono font-semibold text-success">15,000</td>
+                            <td class="px-4 py-4">
+                                <div class="sparkline justify-center">
+                                    <div class="sparkline-bar" style="height:25%"></div>
+                                    <div class="sparkline-bar" style="height:35%"></div>
+                                    <div class="sparkline-bar" style="height:40%"></div>
+                                    <div class="sparkline-bar" style="height:50%"></div>
+                                    <div class="sparkline-bar" style="height:65%"></div>
+                                    <div class="sparkline-bar" style="height:78%"></div>
+                                    <div class="sparkline-bar" style="height:100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-danger/20 text-danger px-2.5 py-1 rounded-full font-bold">NT1</span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <p class="text-sm">v5.0.1</p>
+                                <p class="text-xs text-text-muted">25/02/2026</p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center hover:bg-brand-500/30 transition-colors"
+                                        title="Lưu vào watchlist">
+                                        <i data-lucide="bookmark" class="w-4 h-4 text-brand-400"></i>
+                                    </button>
+                                    <a href="#"
+                                        class="w-8 h-8 rounded-lg bg-cyan/20 flex items-center justify-center hover:bg-cyan/30 transition-colors"
+                                        title="Appstore Spy">
+                                        <i data-lucide="eye" class="w-4 h-4 text-cyan"></i>
+                                    </a>
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-warning/20 flex items-center justify-center hover:bg-warning/30 transition-colors"
+                                        title="Download Creative">
+                                        <i data-lucide="palette" class="w-4 h-4 text-warning"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 7 -->
+                        <tr class="row-hover transition-colors">
+                            <td class="px-6 py-4"><input type="checkbox" class="rounded border-border bg-surface"></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                        CL</div>
+                                    <div>
+                                        <p class="font-semibold">Clean Master Ultra</p>
+                                        <a href="#"
+                                            class="text-xs text-brand-400 hover:underline flex items-center gap-1 mt-0.5">
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                            play.google.com/clean-ultra
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-red-500/20 text-red-400 px-2.5 py-1 rounded-full font-medium">Cleaner</span>
+                            </td>
+                            <td class="px-4 py-4 text-right font-mono">900</td>
+                            <td class="px-4 py-4 text-right font-mono">2,800</td>
+                            <td class="px-4 py-4 text-right font-mono font-semibold text-success">14,500</td>
+                            <td class="px-4 py-4">
+                                <div class="sparkline justify-center">
+                                    <div class="sparkline-bar" style="height:8%"></div>
+                                    <div class="sparkline-bar" style="height:12%"></div>
+                                    <div class="sparkline-bar" style="height:14%"></div>
+                                    <div class="sparkline-bar" style="height:18%"></div>
+                                    <div class="sparkline-bar" style="height:28%"></div>
+                                    <div class="sparkline-bar" style="height:50%"></div>
+                                    <div class="sparkline-bar" style="height:100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4"><span
+                                    class="text-xs bg-warning/20 text-warning px-2.5 py-1 rounded-full font-bold">NT2</span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <p class="text-sm">v6.3.0</p>
+                                <p class="text-xs text-text-muted">26/02/2026</p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center hover:bg-brand-500/30 transition-colors"
+                                        title="Lưu vào watchlist">
+                                        <i data-lucide="bookmark" class="w-4 h-4 text-brand-400"></i>
+                                    </button>
+                                    <a href="#"
+                                        class="w-8 h-8 rounded-lg bg-cyan/20 flex items-center justify-center hover:bg-cyan/30 transition-colors"
+                                        title="Appstore Spy">
+                                        <i data-lucide="eye" class="w-4 h-4 text-cyan"></i>
+                                    </a>
+                                    <button
+                                        class="w-8 h-8 rounded-lg bg-warning/20 flex items-center justify-center hover:bg-warning/30 transition-colors"
+                                        title="Download Creative">
+                                        <i data-lucide="palette" class="w-4 h-4 text-warning"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div class="p-5 border-t border-border flex items-center justify-between">
+                <p class="text-sm text-text-secondary">Hiển thị <span class="font-semibold text-text-primary">1-7</span>
+                    / <span class="font-semibold text-text-primary">47</span> apps</p>
+                <div class="flex items-center gap-1">
+                    <button
+                        class="w-9 h-9 rounded-lg border border-border flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-surface-hover transition-all">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+                    <button
+                        class="w-9 h-9 rounded-lg bg-brand-500 text-white flex items-center justify-center text-sm font-medium">1</button>
+                    <button
+                        class="w-9 h-9 rounded-lg border border-border flex items-center justify-center text-sm text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all">2</button>
+                    <button
+                        class="w-9 h-9 rounded-lg border border-border flex items-center justify-center text-sm text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all">3</button>
+                    <span class="text-text-muted px-1">...</span>
+                    <button
+                        class="w-9 h-9 rounded-lg border border-border flex items-center justify-center text-sm text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all">7</button>
+                    <button
+                        class="w-9 h-9 rounded-lg border border-border flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-surface-hover transition-all">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

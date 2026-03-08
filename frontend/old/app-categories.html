@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climbers - Theo dõi Dòng App</title>
+    <meta name="description" content="Quản lý và theo dõi các dòng ứng dụng trên thị trường.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --font-sans: 'Inter', sans-serif;
+            --color-brand-50: #eef2ff;
+            --color-brand-100: #e0e7ff;
+            --color-brand-400: #818cf8;
+            --color-brand-500: #6366f1;
+            --color-brand-600: #4f46e5;
+            --color-brand-700: #4338ca;
+            --color-surface: #0f172a;
+            --color-surface-card: #1e293b;
+            --color-surface-hover: #334155;
+            --color-border: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #94a3b8;
+            --color-text-muted: #64748b;
+            --color-success: #22c55e;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-cyan: #06b6d4;
+        }
+    </style>
+    <style>
+        body {
+            background-color: #0f172a;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.1));
+            border-left: 3px solid #6366f1;
+            color: #e0e7ff;
+        }
+
+        .sidebar-link:not(.active):hover {
+            background: rgba(51, 65, 85, 0.5);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #818cf8, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .category-card {
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-card.selected {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
+        }
+
+        .category-card.selected .check-indicator {
+            background: #6366f1;
+            border-color: #6366f1;
+        }
+
+        .category-card.selected .check-indicator svg {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .animate-in-delay-1 {
+            animation-delay: 0.05s;
+            opacity: 0;
+        }
+
+        .animate-in-delay-2 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+
+        .animate-in-delay-3 {
+            animation-delay: 0.15s;
+            opacity: 0;
+        }
+
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+
+<body class="font-sans text-text-primary min-h-screen">
+
+    <!-- Sidebar -->
+    <aside
+        class="fixed left-0 top-0 h-full w-64 bg-surface-card/80 backdrop-blur-xl border-r border-border z-50 flex flex-col">
+        <div class="p-6 border-b border-border">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-cyan flex items-center justify-center">
+                    <i data-lucide="mountain" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold gradient-text">CLIMBERS</h1>
+                    <p class="text-xs text-text-muted">Market Research Tool</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="index.html"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-text-secondary transition-all duration-200">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Dashboard
+            </a>
+            <a href="app-categories.html"
+                class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200">
+                <i data-lucide="layers" class="w-5 h-5"></i>
+                Theo dõi Dòng App
+            </a>
+            <a href="app-tracking.html"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-text-secondary transition-all duration-200">
+                <i data-lucide="trending-up" class="w-5 h-5"></i>
+                Theo dõi App
+            </a>
+            <a href="store-monitoring.html"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-text-secondary transition-all duration-200">
+                <i data-lucide="store" class="w-5 h-5"></i>
+                Theo dõi Chợ
+            </a>
+            <a href="notifications.html"
+                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-text-secondary transition-all duration-200">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                Cài đặt Thông báo
+            </a>
+        </nav>
+        <div class="p-4 border-t border-border">
+            <div class="flex items-center gap-3 px-3">
+                <div
+                    class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-cyan flex items-center justify-center text-white text-sm font-semibold">
+                    UA</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate">UA Team</p>
+                    <p class="text-xs text-text-muted">ua@climbers.io</p>
+                </div>
+                <i data-lucide="log-out"
+                    class="w-4 h-4 text-text-muted cursor-pointer hover:text-text-primary transition-colors"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 p-8">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8 animate-in">
+            <div>
+                <h2 class="text-2xl font-bold">Theo dõi Dòng App</h2>
+                <p class="text-text-secondary text-sm mt-1">Chọn các dòng ứng dụng bạn muốn theo dõi trên thị trường</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="btn-add-category"
+                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-hover text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover/80 transition-all border border-border">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Thêm dòng mới
+                    <span
+                        class="text-[10px] bg-warning/20 text-warning px-1.5 py-0.5 rounded font-semibold">Admin</span>
+                </button>
+                <button id="btn-save"
+                    class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-cyan text-sm font-semibold text-white hover:opacity-90 transition-all shadow-lg shadow-brand-500/25">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    Lưu thay đổi
+                </button>
+            </div>
+        </header>
+
+        <!-- Status Bar -->
+        <div class="glass-card rounded-2xl p-5 mb-8 flex items-center justify-between animate-in animate-in-delay-1">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-success animate-pulse"></div>
+                    <span class="text-sm text-text-secondary">Đã chọn: <span class="font-semibold text-text-primary"
+                            id="selected-count">8</span> / <span id="total-count">15</span> dòng</span>
+                </div>
+                <div class="h-4 w-px bg-border"></div>
+                <div class="flex items-center gap-2 text-sm text-text-secondary">
+                    <i data-lucide="info" class="w-4 h-4"></i>
+                    Tick chọn các dòng bạn muốn theo dõi, sau đó nhấn "Lưu thay đổi"
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button
+                    class="text-xs px-3 py-1.5 rounded-lg bg-brand-500/20 text-brand-400 hover:bg-brand-500/30 transition-colors font-medium">Chọn
+                    tất cả</button>
+                <button
+                    class="text-xs px-3 py-1.5 rounded-lg bg-surface-hover text-text-secondary hover:text-text-primary transition-colors font-medium">Bỏ
+                    chọn tất cả</button>
+            </div>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+
+            <!-- Category Card: Remote (selected) -->
+            <div class="category-card selected glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-1"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                        <i data-lucide="monitor-smartphone" class="w-6 h-6 text-blue-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Remote</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng điều khiển từ xa, remote desktop, screen mirror</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">12</span>
+                        apps</span>
+                    <span class="text-success flex items-center gap-0.5"><i data-lucide="trending-up"
+                            class="w-3 h-3"></i> 3 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Money (selected) -->
+            <div class="category-card selected glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-1"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                        <i data-lucide="banknote" class="w-6 h-6 text-green-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Money</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng kiếm tiền, cash reward, earn money online</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">8</span> apps</span>
+                    <span class="text-success flex items-center gap-0.5"><i data-lucide="trending-up"
+                            class="w-3 h-3"></i> 1 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Loan (selected) -->
+            <div class="category-card selected glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-2"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-pink-500/20 flex items-center justify-center">
+                        <i data-lucide="credit-card" class="w-6 h-6 text-pink-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Loan</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng cho vay, tính lãi suất, quản lý khoản vay</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">6</span> apps</span>
+                    <span class="text-success flex items-center gap-0.5"><i data-lucide="trending-up"
+                            class="w-3 h-3"></i> 2 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: PDF (selected) -->
+            <div class="category-card selected glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-2"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-6 h-6 text-orange-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">PDF</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng đọc, chỉnh sửa, scan tài liệu PDF</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">9</span> apps</span>
+                    <span class="text-text-muted flex items-center gap-0.5">0 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: VPN (selected) -->
+            <div class="category-card selected glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-2"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-cyan/20 flex items-center justify-center">
+                        <i data-lucide="shield" class="w-6 h-6 text-cyan"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">VPN</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng VPN, proxy, bảo mật kết nối internet</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">15</span>
+                        apps</span>
+                    <span class="text-success flex items-center gap-0.5"><i data-lucide="trending-up"
+                            class="w-3 h-3"></i> 4 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Scanner (selected) -->
+            <div class="category-card selected glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-2"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                        <i data-lucide="scan" class="w-6 h-6 text-yellow-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Scanner</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng quét tài liệu, QR code, barcode scanner</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">7</span> apps</span>
+                    <span class="text-success flex items-center gap-0.5"><i data-lucide="trending-up"
+                            class="w-3 h-3"></i> 1 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Cleaner (selected) -->
+            <div class="category-card selected glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-3"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center">
+                        <i data-lucide="trash-2" class="w-6 h-6 text-red-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Cleaner</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng dọn dẹp, tăng tốc, giải phóng bộ nhớ</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">11</span>
+                        apps</span>
+                    <span class="text-text-muted flex items-center gap-0.5">0 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Weather (selected) -->
+            <div class="category-card selected glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-3"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                        <i data-lucide="cloud-sun" class="w-6 h-6 text-violet-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Weather</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng dự báo thời tiết, thời tiết trực tiếp</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">5</span> apps</span>
+                    <span class="text-success flex items-center gap-0.5"><i data-lucide="trending-up"
+                            class="w-3 h-3"></i> 2 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Launcher (not selected) -->
+            <div class="category-card glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-3"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-teal-500/20 flex items-center justify-center">
+                        <i data-lucide="rocket" class="w-6 h-6 text-teal-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Launcher</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng launcher, theme, icon pack cho Android</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">4</span> apps</span>
+                    <span class="text-text-muted flex items-center gap-0.5">0 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Keyboard (not selected) -->
+            <div class="category-card glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-3"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+                        <i data-lucide="keyboard" class="w-6 h-6 text-indigo-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Keyboard</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng bàn phím, emoji keyboard, gõ tiếng Việt</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">3</span> apps</span>
+                    <span class="text-text-muted flex items-center gap-0.5">0 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Gallery (not selected) -->
+            <div class="category-card glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-3"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-fuchsia-500/20 flex items-center justify-center">
+                        <i data-lucide="image" class="w-6 h-6 text-fuchsia-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Gallery</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng quản lý ảnh, gallery, photo editor</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">6</span> apps</span>
+                    <span class="text-success flex items-center gap-0.5"><i data-lucide="trending-up"
+                            class="w-3 h-3"></i> 1 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Battery (not selected) -->
+            <div class="category-card glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-3"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-lime-500/20 flex items-center justify-center">
+                        <i data-lucide="battery-charging" class="w-6 h-6 text-lime-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Battery</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng tiết kiệm pin, quản lý pin, battery saver</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">4</span> apps</span>
+                    <span class="text-text-muted flex items-center gap-0.5">0 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Music (not selected) -->
+            <div class="category-card glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-3"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-rose-500/20 flex items-center justify-center">
+                        <i data-lucide="music" class="w-6 h-6 text-rose-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Music</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng nghe nhạc, music player, nhận diện bài hát</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">5</span> apps</span>
+                    <span class="text-success flex items-center gap-0.5"><i data-lucide="trending-up"
+                            class="w-3 h-3"></i> 1 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: Video (not selected) -->
+            <div class="category-card glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-3"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-sky-500/20 flex items-center justify-center">
+                        <i data-lucide="video" class="w-6 h-6 text-sky-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">Video</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng xem video, video player, video editor</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">8</span> apps</span>
+                    <span class="text-success flex items-center gap-0.5"><i data-lucide="trending-up"
+                            class="w-3 h-3"></i> 2 mới</span>
+                </div>
+            </div>
+
+            <!-- Category Card: File Manager (not selected) -->
+            <div class="category-card glass-card rounded-2xl p-5 cursor-pointer animate-in animate-in-delay-3"
+                onclick="this.classList.toggle('selected')">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                        <i data-lucide="folder" class="w-6 h-6 text-amber-400"></i>
+                    </div>
+                    <div
+                        class="check-indicator w-6 h-6 rounded-full border-2 border-border flex items-center justify-center transition-all">
+                        <svg class="w-3.5 h-3.5 text-white hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="font-semibold text-base mb-1">File Manager</h3>
+                <p class="text-xs text-text-muted mb-3">Ứng dụng quản lý file, trình quản lý tệp tin</p>
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-text-secondary"><span class="font-semibold text-text-primary">3</span> apps</span>
+                    <span class="text-text-muted flex items-center gap-0.5">0 mới</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Category Modal (hidden by default) -->
+    <div id="modal-add" class="modal-backdrop fixed inset-0 z-[100] hidden items-center justify-center">
+        <div class="glass-card rounded-2xl p-8 w-full max-w-md mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold">Thêm dòng app mới</h3>
+                <button
+                    onclick="document.getElementById('modal-add').classList.add('hidden'); document.getElementById('modal-add').classList.remove('flex');"
+                    class="w-8 h-8 rounded-lg bg-surface-hover flex items-center justify-center hover:bg-surface-hover/80 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-text-secondary mb-2 block">Tên dòng app</label>
+                    <input type="text" placeholder="Ví dụ: Social, Game, Education..."
+                        class="w-full px-4 py-3 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:border-brand-500 transition-colors placeholder:text-text-muted">
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-text-secondary mb-2 block">Mô tả</label>
+                    <textarea rows="3" placeholder="Mô tả ngắn gọn về dòng app này..."
+                        class="w-full px-4 py-3 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:border-brand-500 transition-colors resize-none placeholder:text-text-muted"></textarea>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-text-secondary mb-2 block">Icon (emoji hoặc keyword)</label>
+                    <input type="text" placeholder="Ví dụ: rocket, game, book..."
+                        class="w-full px-4 py-3 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:border-brand-500 transition-colors placeholder:text-text-muted">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button
+                    onclick="document.getElementById('modal-add').classList.add('hidden'); document.getElementById('modal-add').classList.remove('flex');"
+                    class="px-4 py-2.5 rounded-xl text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">Hủy</button>
+                <button
+                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-cyan text-sm font-semibold text-white hover:opacity-90 transition-all">Thêm
+                    dòng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        document.getElementById('btn-add-category').addEventListener('click', () => {
+            document.getElementById('modal-add').classList.remove('hidden');
+            document.getElementById('modal-add').classList.add('flex');
+        });
+    </script>
+</body>
+
+</html>
