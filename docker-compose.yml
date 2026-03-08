@@ -16,6 +16,8 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       FRONTEND_URL: ${FRONTEND_URL}
       CORS_ORIGINS: ${CORS_ORIGINS}
+    networks:
+      - app_db_net
 
   # ============================================
   # Frontend (Next.js)
@@ -33,3 +35,7 @@ services:
     environment:
       NEXT_PUBLIC_TELEGRAM_BOT_NAME: ${NEXT_PUBLIC_TELEGRAM_BOT_NAME}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+
+networks:
+  app_db_net:
+    external: true
