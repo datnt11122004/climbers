@@ -2,7 +2,7 @@ services:
   # ============================================
   # Backend (NestJS + Prisma)
   # ============================================
-  backend:
+  climbers-backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -22,7 +22,7 @@ services:
   # ============================================
   # Frontend (Next.js)
   # ============================================
-  frontend:
+  climbers-frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
