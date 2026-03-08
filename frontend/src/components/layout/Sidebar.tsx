@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Mountain, LayoutDashboard, Layers, TrendingUp, Store, Bell, LogOut } from 'lucide-react';
+import { Mountain, LayoutDashboard, Layers, TrendingUp, Store, Bell, LogOut, Settings } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 import { AuthService } from '@/services/auth.service';
@@ -20,6 +20,12 @@ export function Sidebar() {
     { href: '/store-monitoring', icon: Store, label: 'Theo dõi Chợ' },
     { href: '/notifications', icon: Bell, label: 'Cài đặt Thông báo' },
   ];
+
+  const adminLinks = [
+    { href: '/admin-categories', icon: Settings, label: 'Quản lý Danh mục' },
+  ];
+
+  const isAdmin = user?.role === 'ADMIN';
 
   const handleLogout = () => {
     AuthService.logout();
@@ -70,6 +76,31 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Admin section */}
+        {isAdmin && (
+          <>
+            <div className="pt-4 pb-2">
+              <p className="px-4 text-[10px] font-semibold uppercase tracking-widest text-[#475569]">Admin</p>
+            </div>
+            {adminLinks.map((link) => {
+              const isActive = pathname === link.href;
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all duration-200 ${
+                    isActive ? 'active font-medium' : 'font-medium text-[#94a3b8]'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  {link.label}
+                </Link>
+              );
+            })}
+          </>
+        )}
       </nav>
 
       {/* User */}

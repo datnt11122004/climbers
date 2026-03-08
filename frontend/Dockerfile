@@ -1,5 +1,5 @@
 # Base Image for the Frontend Next.js Application Docker image
-FROM node:18-alpine AS build
+FROM node:22-alpine AS build
 
 # Build arguments for NEXT_PUBLIC env vars (baked in at build time)
 ARG NEXT_PUBLIC_TELEGRAM_BOT_NAME=${NEXT_PUBLIC_TELEGRAM_BOT_NAME}
@@ -30,7 +30,7 @@ COPY . .
 RUN npm run build
 
 # Use a minimal Node.js image to serve the application
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Set the working directory for the Next.js application container
 WORKDIR /app
