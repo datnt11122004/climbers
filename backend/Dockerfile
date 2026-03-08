@@ -19,6 +19,9 @@ RUN pnpm install
 # Copy the rest of the application files
 COPY . .
 
+# Generate Prisma client
+RUN pnpm prisma:generate
+
 # Build the application
 RUN pnpm build
 
@@ -26,4 +29,4 @@ RUN pnpm build
 EXPOSE 3000
 
 # Start the application with the command
-CMD ["/bin/sh", "-c", "pnpm prisma:deploy && pnpm prisma:generate && pnpm start:prod"]
+CMD ["/bin/sh", "-c", "pnpm prisma:deploy && pnpm start:prod"]
