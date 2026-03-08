@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "${BACKEND_PORT:-8080}:8082"
+      - "${BACKEND_PORT:-8080}:3000"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
@@ -31,7 +31,7 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-3000}:8081"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
       NEXT_PUBLIC_TELEGRAM_BOT_NAME: ${NEXT_PUBLIC_TELEGRAM_BOT_NAME}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
