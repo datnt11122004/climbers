@@ -1,14 +1,19 @@
 # Base Image for the Frontend Next.js Application Docker image
 FROM node:18-alpine AS build
 
+# Build arguments for NEXT_PUBLIC env vars (baked in at build time)
+ARG NEXT_PUBLIC_TELEGRAM_BOT_NAME=${NEXT_PUBLIC_TELEGRAM_BOT_NAME}
+ARG NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 # Set the working directory for the Next.js application
 WORKDIR /app
 
 # Copy the package.json and package-lock.json files to the container
 COPY package.json ./
 
-# Copy the .env file to the container
-COPY .env.production ./
+# Generate .env.production from build args
+RUN echo "NEXT_PUBLIC_TELEGRAM_BOT_NAME=${NEXT_PUBLIC_TELEGRAM_BOT_NAME}" > .env.production && \
+    echo "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}" >> .env.production
 
 # Copy the tsconfig.json file to the container
 COPY tsconfig.json ./
@@ -19,7 +24,7 @@ RUN npm install --save-dev ignore-loader
 COPY . .
 
 # Run the translation script
-RUN npm run trans || true
+# RUN npm run trans || true
 
 # Build the Next.js application
 RUN npm run build

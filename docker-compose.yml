@@ -1,0 +1,35 @@
+services:
+  # ============================================
+  # Backend (NestJS + Prisma)
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8080}:8082"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      FRONTEND_URL: ${FRONTEND_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+
+  # ============================================
+  # Frontend (Next.js)
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_TELEGRAM_BOT_NAME: ${NEXT_PUBLIC_TELEGRAM_BOT_NAME}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:8081"
+    environment:
+      NEXT_PUBLIC_TELEGRAM_BOT_NAME: ${NEXT_PUBLIC_TELEGRAM_BOT_NAME}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
