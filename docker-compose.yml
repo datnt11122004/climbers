@@ -15,6 +15,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       FRONTEND_URL: ${FRONTEND_URL}
+      APPSTORESPY_API_KEY: ${APPSTORESPY_API_KEY}
       CORS_ORIGINS: ${CORS_ORIGINS}
     networks:
       - app_db_net
