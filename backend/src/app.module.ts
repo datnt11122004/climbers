@@ -8,6 +8,7 @@ import { InteractBotModule } from '#root/interact-bot/interact-bot.module';
 import { CategoryModule } from '#root/category/category.module';
 import { AuthModule } from '#root/auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AppStoreSpyModule } from '#root/appstorespy/appstorespy.module';
 
 @Module({
 	imports: [
@@ -21,6 +22,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 		BotModule,
 		InteractBotModule,
 		CategoryModule,
+		AppStoreSpyModule,
 	],
 	controllers: [AppController],
 	providers: [],

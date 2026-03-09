@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Mountain, LayoutDashboard, Layers, TrendingUp, Store, Bell, LogOut, Settings } from 'lucide-react';
+import { Mountain, LayoutDashboard, Layers, TrendingUp, Activity, Bell, LogOut, Settings } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 import { AuthService } from '@/services/auth.service';
@@ -17,12 +17,12 @@ export function Sidebar() {
     { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/app-categories', icon: Layers, label: 'Theo dõi Dòng App' },
     { href: '/app-tracking', icon: TrendingUp, label: 'Theo dõi App' },
-    { href: '/store-monitoring', icon: Store, label: 'Theo dõi Chợ' },
     { href: '/notifications', icon: Bell, label: 'Cài đặt Thông báo' },
   ];
 
   const adminLinks = [
     { href: '/admin-categories', icon: Settings, label: 'Quản lý Danh mục' },
+    { href: '/store-monitoring', icon: Activity, label: 'AppStoreSpy Monitor' },
   ];
 
   const isAdmin = user?.role === 'ADMIN';

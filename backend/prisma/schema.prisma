@@ -68,3 +68,87 @@ model UserCategoryFollow {
   @@unique([userId, categoryId])
   @@map("user_category_follows")
 }
+
+// ─── AppStoreSpy Integration ──────────────────────────
+
+enum Store {
+  PLAY
+  IOS
+}
+
+enum CrawlStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum TriggerType {
+  NT1
+  NT2
+}
+
+model TrackedApp {
+  id        Int      @id @default(autoincrement())
+  appId     String   @map("app_id") @db.VarChar(255)
+  store     Store    @default(PLAY)
+  name      String   @db.VarChar(500)
+  category  String?  @db.VarChar(100)
+  icon      String?  @db.VarChar(1000)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  dailyData      AppDailyData[]
+  triggerAlerts  AppTriggerAlert[]
+
+  @@unique([appId, store])
+  @@map("tracked_apps")
+}
+
+model AppDailyData {
+  id           Int       @id @default(autoincrement())
+  trackedAppId Int       @map("tracked_app_id")
+  date         DateTime  @db.Date
+  downloads    Int       @default(0)
+  revenue      Int       @default(0)
+  ratingCount  Int?      @map("rating_count")
+  ratingValue  Float?    @map("rating_value")
+  version      String?   @db.VarChar(50)
+  updatedDate  DateTime? @map("updated_date") @db.Date
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  trackedApp TrackedApp @relation(fields: [trackedAppId], references: [id], onDelete: Cascade)
+
+  @@unique([trackedAppId, date])
+  @@map("app_daily_data")
+}
+
+model AppTriggerAlert {
+  id           Int         @id @default(autoincrement())
+  trackedAppId Int         @map("tracked_app_id")
+  triggerDate  DateTime    @map("trigger_date") @db.Date
+  triggerType  TriggerType @map("trigger_type")
+  d0Downloads  Int         @map("d0_downloads")
+  d1Downloads  Int         @map("d1_downloads")
+  d2Downloads  Int         @map("d2_downloads")
+  growthRate   Float       @map("growth_rate")
+  notes        String?     @db.Text
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  trackedApp TrackedApp @relation(fields: [trackedAppId], references: [id], onDelete: Cascade)
+
+  @@map("app_trigger_alerts")
+}
+
+model CrawlLog {
+  id            Int         @id @default(autoincrement())
+  startedAt     DateTime    @default(now()) @map("started_at")
+  finishedAt    DateTime?   @map("finished_at")
+  status        CrawlStatus @default(RUNNING)
+  totalApps     Int         @default(0) @map("total_apps")
+  processedApps Int         @default(0) @map("processed_apps")
+  errors        String?     @db.Text
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@map("crawl_logs")
+}
