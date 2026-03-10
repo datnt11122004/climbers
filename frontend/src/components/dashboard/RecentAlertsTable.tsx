@@ -11,7 +11,10 @@ function fmtNum(n: number) {
   return n.toLocaleString();
 }
 
-function TriggerBadge({ type }: { type: 'NT1' | 'NT2' }) {
+function TriggerBadge({ type }: { type: 'NT1' | 'NT2' | 'NT3' }) {
+  if (type === 'NT3') {
+    return <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-semibold">NT3</span>;
+  }
   return type === 'NT2'
     ? <span className="text-xs bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full font-semibold">NT2</span>
     : <span className="text-xs bg-violet-500/20 text-violet-400 px-2 py-0.5 rounded-full font-semibold">NT1</span>;
