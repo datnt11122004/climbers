@@ -6,8 +6,9 @@ import { AppStoreSpyTriggerService } from './appstorespy-trigger.service';
 import { Store } from '@prisma/client';
 
 /**
- * Crawl service: runs every 6 hours to fetch daily install data
+ * Crawl service: runs every 12 hours to fetch daily install data
  * from AppStoreSpy for top apps dynamically.
+ * Crawls last 60 days (2 months) of data per app.
  */
 @Injectable()
 export class AppStoreSpyCrawlService {
@@ -22,9 +23,9 @@ export class AppStoreSpyCrawlService {
 	) {}
 
 	/**
-	 * Scheduled crawl job - runs every 6 hours (0:00, 6:00, 12:00, 18:00)
+	 * Scheduled crawl job - runs every 12 hours (0:00, 12:00)
 	 */
-	@Cron('0 */6 * * *')
+	@Cron('0 */12 * * *')
 	async handleCrawl() {
 		this.logger.log('🕷️ Starting scheduled AppStoreSpy crawl...');
 		await this.executeCrawl();
@@ -71,6 +72,7 @@ export class AppStoreSpyCrawlService {
 								name: app.name || bundleId,
 								category: app.category || null,
 								icon: app.icon || null,
+								...(app.release_date && { releaseDate: new Date(app.release_date) }),
 								active: true,
 							},
 							create: {
@@ -79,6 +81,7 @@ export class AppStoreSpyCrawlService {
 								name: app.name || bundleId,
 								category: app.category || null,
 								icon: app.icon || null,
+								...(app.release_date && { releaseDate: new Date(app.release_date) }),
 								active: true,
 							},
 						});
@@ -129,17 +132,17 @@ export class AppStoreSpyCrawlService {
 	}
 
 	/**
-	 * Crawl daily data for a single app
+	 * Crawl daily data for a single app — fetches last 60 days (2 months)
 	 */
 	private async crawlAppData(
 		appRecord: { id: number; appId: string; store: Store },
 		searchDataRef?: any
 	) {
 		const today = new Date();
-		const threeDaysAgo = new Date(today);
-		threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+		const twoMonthsAgo = new Date(today);
+		twoMonthsAgo.setDate(twoMonthsAgo.getDate() - 60);
 
-		const startDate = this.formatDate(threeDaysAgo);
+		const startDate = this.formatDate(twoMonthsAgo);
 		const endDate = this.formatDate(today);
 
 		if (appRecord.store === 'PLAY') {
@@ -165,12 +168,12 @@ export class AppStoreSpyCrawlService {
 						},
 					},
 					update: {
-						downloads: entry.ipd || entry.installs || 0,
+						downloads: entry.ipd || 0,
 					},
 					create: {
 						trackedAppId: appRecord.id,
 						date: entryDate,
-						downloads: entry.ipd || entry.installs || 0,
+						downloads: entry.ipd || 0,
 						revenue: 0,
 						ratingCount: searchDataRef?.rating_count ?? null,
 						ratingValue: searchDataRef?.rating_value ?? null,

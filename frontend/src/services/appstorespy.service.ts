@@ -9,6 +9,7 @@ export type TrackedApp = {
   name: string;
   category: string | null;
   icon: string | null;
+  releaseDate: string | null;
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -32,7 +33,7 @@ export type AppTriggerAlert = {
   id: number;
   trackedAppId: number;
   triggerDate: string;
-  triggerType: 'NT1' | 'NT2';
+  triggerType: 'NT1' | 'NT2' | 'NT3';
   d0Downloads: number;
   d1Downloads: number;
   d2Downloads: number;
@@ -51,6 +52,11 @@ export type CrawlLog = {
   processedApps: number;
   errors: string | null;
   createdAt: string;
+};
+
+export type TrackedAppWithData = TrackedApp & {
+  dailyData: AppDailyData[];
+  triggerAlerts: AppTriggerAlert[];
 };
 
 export type ApiListResponse<T> = {
@@ -73,10 +79,18 @@ export type DailyDataQuery = {
 };
 
 export type AlertsQuery = {
-  triggerType?: 'NT1' | 'NT2';
+  triggerType?: 'NT1' | 'NT2' | 'NT3';
   trackedAppId?: number;
   from?: string;
   to?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type AppsQuery = {
+  category?: string;
+  triggerType?: 'NT1' | 'NT2' | 'NT3';
+  search?: string;
   page?: number;
   limit?: number;
 };
@@ -101,6 +115,23 @@ export class AppStoreSpyService {
 
   static async deleteTrackedApp(id: number): Promise<void> {
     await HttpClient.delete(`/appstorespy/tracked-apps/${id}`);
+  }
+
+  /** User-accessible: Get paginated apps with sparkline + trigger alerts */
+  static async getApps(query: AppsQuery = {}): Promise<ApiListResponse<TrackedAppWithData>> {
+    const params: Record<string, string> = {};
+    if (query.category) params.category = query.category;
+    if (query.triggerType) params.triggerType = query.triggerType;
+    if (query.search) params.search = query.search;
+    if (query.page) params.page = String(query.page);
+    if (query.limit) params.limit = String(query.limit);
+    return HttpClient.get<ApiListResponse<TrackedAppWithData>>('/appstorespy/apps', { params });
+  }
+
+  /** User-accessible: Get single app detail with 60-day daily chart data */
+  static async getAppDetail(id: number): Promise<TrackedAppWithData> {
+    const res = await HttpClient.get<ApiSingleResponse<TrackedAppWithData>>(`/appstorespy/apps/${id}`);
+    return res.data;
   }
 
   static async getDailyData(query: DailyDataQuery): Promise<ApiListResponse<AppDailyData>> {

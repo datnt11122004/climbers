@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AppStoreSpyService, AppTriggerAlert } from '@/services/appstorespy.service';
-import { Bell, TrendingUp, AlertTriangle, Play, X, ArrowRight } from 'lucide-react';
+import { Bell, TrendingUp, AlertTriangle, Play, X, ArrowRight, Rocket } from 'lucide-react';
 import Link from 'next/link';
 
 function fmtNum(n: number) {
@@ -17,7 +17,12 @@ function fmtDate(s: string) {
 }
 
 function AlertItem({ a }: { a: AppTriggerAlert }) {
-  const isNT2 = a.triggerType === 'NT2';
+  const cfg = {
+    NT1: { cls: 'bg-violet-500/15 text-violet-400', icon: <TrendingUp className="w-2.5 h-2.5" />, label: 'NT1' },
+    NT2: { cls: 'bg-orange-500/15 text-orange-400', icon: <AlertTriangle className="w-2.5 h-2.5" />, label: 'NT2' },
+    NT3: { cls: 'bg-emerald-500/15 text-emerald-400', icon: <Rocket className="w-2.5 h-2.5" />, label: 'NT3 – Mới' },
+  }[a.triggerType] ?? { cls: 'bg-[#334155] text-[#94a3b8]', icon: null, label: a.triggerType };
+
   return (
     <div className="flex items-start gap-3 px-4 py-3 hover:bg-[#0f172a]/60 transition-colors">
       {a.trackedApp?.icon ? (
@@ -29,9 +34,8 @@ function AlertItem({ a }: { a: AppTriggerAlert }) {
       )}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isNT2 ? 'bg-orange-500/15 text-orange-400' : 'bg-violet-500/15 text-violet-400'}`}>
-            {isNT2 ? <AlertTriangle className="w-2.5 h-2.5" /> : <TrendingUp className="w-2.5 h-2.5" />}
-            {a.triggerType}
+          <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${cfg.cls}`}>
+            {cfg.icon} {cfg.label}
           </span>
           <span className="text-[10px] text-[#475569]">{fmtDate(a.triggerDate)}</span>
         </div>

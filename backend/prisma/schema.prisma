@@ -36,7 +36,25 @@ model Bot {
   interactive Boolean  @default(false)
   createdAt   DateTime @default(now()) @map("created_at")
 
+  telegramGroupConfigs TelegramGroupConfig[]
+
   @@map("bots")
+}
+
+model TelegramGroupConfig {
+  id          Int      @id @default(autoincrement())
+  botId       Int      @map("bot_id")
+  chatId      String   @map("chat_id") @db.VarChar(255) // ID of the group chat
+  topicId     Int?     @map("topic_id")                 // ID of the topic (if applicable)
+  groupName   String?  @map("group_name") @db.VarChar(500)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  bot         Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@unique([botId, chatId, topicId])
+  @@map("telegram_group_configs")
 }
 
 model AppCategory {
@@ -85,18 +103,20 @@ enum CrawlStatus {
 enum TriggerType {
   NT1
   NT2
+  NT3
 }
 
 model TrackedApp {
-  id        Int      @id @default(autoincrement())
-  appId     String   @map("app_id") @db.VarChar(255)
-  store     Store    @default(PLAY)
-  name      String   @db.VarChar(500)
-  category  String?  @db.VarChar(100)
-  icon      String?  @db.VarChar(1000)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id          Int       @id @default(autoincrement())
+  appId       String    @map("app_id") @db.VarChar(255)
+  store       Store     @default(PLAY)
+  name        String    @db.VarChar(500)
+  category    String?   @db.VarChar(100)
+  icon        String?   @db.VarChar(1000)
+  releaseDate DateTime? @map("release_date") @db.Date
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   dailyData      AppDailyData[]
   triggerAlerts  AppTriggerAlert[]
