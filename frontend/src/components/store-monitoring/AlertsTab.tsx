@@ -14,7 +14,14 @@ function fmtDate(s: string) {
   return new Date(s).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-function TriggerBadge({ type }: { type: 'NT1' | 'NT2' }) {
+function TriggerBadge({ type }: { type: 'NT1' | 'NT2' | 'NT3' }) {
+  if (type === 'NT3') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30">
+        🚀 NT3
+      </span>
+    );
+  }
   const isNT2 = type === 'NT2';
   return (
     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${isNT2 ? 'bg-orange-500/15 text-orange-400 border-orange-500/30' : 'bg-violet-500/15 text-violet-400 border-violet-500/30'}`}>
@@ -29,7 +36,7 @@ export function AlertsTab() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [triggerType, setTriggerType] = useState<'NT1' | 'NT2' | ''>('');
+  const [triggerType, setTriggerType] = useState<'NT1' | 'NT2' | 'NT3' | ''>('');
   const limit = 50;
 
   const load = useCallback(async () => {
@@ -50,7 +57,7 @@ export function AlertsTab() {
       {/* Filters */}
       <div className="flex items-center gap-3 mb-5">
         <div className="flex items-center gap-1 p-1 bg-[#1e293b] rounded-lg border border-[#334155]">
-          {(['', 'NT1', 'NT2'] as const).map((t) => (
+          {(['', 'NT1', 'NT2', 'NT3'] as const).map((t) => (
             <button key={t} onClick={() => { setTriggerType(t); setPage(1); }}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${triggerType === t ? 'bg-[#6366f1] text-white' : 'text-[#64748b] hover:text-[#94a3b8]'}`}>
               {t === '' ? 'Tất cả' : t}
