@@ -135,6 +135,7 @@ model AppDailyData {
   ratingValue  Float?    @map("rating_value")
   version      String?   @db.VarChar(50)
   updatedDate  DateTime? @map("updated_date") @db.Date
+  rawResponse  Json?     @map("raw_response")
   createdAt    DateTime  @default(now()) @map("created_at")
 
   trackedApp TrackedApp @relation(fields: [trackedAppId], references: [id], onDelete: Cascade)

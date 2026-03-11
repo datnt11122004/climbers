@@ -15,7 +15,7 @@ export function Sidebar() {
 
   const navLinks = [
     { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { href: '/app-categories', icon: Layers, label: 'Theo dõi Dòng App' },
+    // { href: '/app-categories', icon: Layers, label: 'Theo dõi Dòng App' },
     { href: '/app-tracking', icon: TrendingUp, label: 'Theo dõi App' },
     { href: '/notifications', icon: Bell, label: 'Cài đặt Thông báo' },
   ];

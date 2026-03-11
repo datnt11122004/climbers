@@ -25,6 +25,7 @@ export type AppDailyData = {
   ratingValue: number | null;
   version: string | null;
   updatedDate: string | null;
+  rawResponse?: any;
   createdAt: string;
   trackedApp?: Pick<TrackedApp, 'appId' | 'name' | 'store'>;
 };
@@ -59,6 +60,26 @@ export type TrackedAppWithData = TrackedApp & {
   triggerAlerts: AppTriggerAlert[];
 };
 
+export type TelegramBot = {
+  id: number;
+  name: string;
+  active: boolean;
+  interactive: boolean;
+  createdAt: string;
+};
+
+export type TelegramGroupConfig = {
+  id: number;
+  botId: number;
+  chatId: string;
+  topicId: number | null;
+  groupName: string | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  bot?: Pick<TelegramBot, 'id' | 'name' | 'active'>;
+};
+
 export type ApiListResponse<T> = {
   success: boolean;
   data: T[];
@@ -89,8 +110,11 @@ export type AlertsQuery = {
 
 export type AppsQuery = {
   category?: string;
-  triggerType?: 'NT1' | 'NT2' | 'NT3';
+  triggerType?: 'NT1' | 'NT2' | 'NT3' | '';
   search?: string;
+  triggeredOnly?: boolean;
+  sortBy?: 'downloads' | 'releaseDate' | 'createdAt';
+  sortDir?: 'asc' | 'desc';
   page?: number;
   limit?: number;
 };
@@ -117,6 +141,12 @@ export class AppStoreSpyService {
     await HttpClient.delete(`/appstorespy/tracked-apps/${id}`);
   }
 
+  /** Add a new app to track by Play Store URL or bundle ID */
+  static async addTrackedApp(payload: { url?: string; bundleId?: string }): Promise<TrackedApp & { message: string }> {
+    const res = await HttpClient.post<ApiSingleResponse<TrackedApp & { message: string }>>('/appstorespy/track-app', payload);
+    return res.data;
+  }
+
   /** User-accessible: Get paginated apps with sparkline + trigger alerts */
   static async getApps(query: AppsQuery = {}): Promise<ApiListResponse<TrackedAppWithData>> {
     const params: Record<string, string> = {};
@@ -125,6 +155,9 @@ export class AppStoreSpyService {
     if (query.search) params.search = query.search;
     if (query.page) params.page = String(query.page);
     if (query.limit) params.limit = String(query.limit);
+    if (query.triggeredOnly !== undefined) params.triggeredOnly = String(query.triggeredOnly);
+    if (query.sortBy) params.sortBy = query.sortBy;
+    if (query.sortDir) params.sortDir = query.sortDir;
     return HttpClient.get<ApiListResponse<TrackedAppWithData>>('/appstorespy/apps', { params });
   }
 
@@ -153,5 +186,40 @@ export class AppStoreSpyService {
     if (query.page) params.page = String(query.page);
     if (query.limit) params.limit = String(query.limit);
     return HttpClient.get<ApiListResponse<AppTriggerAlert>>('/appstorespy/alerts', { params });
+  }
+
+  // ─── Telegram Config ────────────────────────────────────
+
+  static async getBots(): Promise<TelegramBot[]> {
+    const res = await HttpClient.get<ApiSingleResponse<TelegramBot[]>>('/appstorespy/bots');
+    return res.data;
+  }
+
+  static async getTelegramConfigs(): Promise<TelegramGroupConfig[]> {
+    const res = await HttpClient.get<ApiSingleResponse<TelegramGroupConfig[]>>('/appstorespy/telegram-configs');
+    return res.data;
+  }
+
+  static async createTelegramConfig(data: {
+    botId: number;
+    chatId: string;
+    topicId?: number;
+    groupName?: string;
+    active?: boolean;
+  }): Promise<TelegramGroupConfig> {
+    const res = await HttpClient.post<ApiSingleResponse<TelegramGroupConfig>>('/appstorespy/telegram-configs', data);
+    return res.data;
+  }
+
+  static async updateTelegramConfig(
+    id: number,
+    data: Partial<{ botId: number; chatId: string; topicId: number; groupName: string; active: boolean }>
+  ): Promise<TelegramGroupConfig> {
+    const res = await HttpClient.patch<ApiSingleResponse<TelegramGroupConfig>>(`/appstorespy/telegram-configs/${id}`, data);
+    return res.data;
+  }
+
+  static async deleteTelegramConfig(id: number): Promise<void> {
+    await HttpClient.delete(`/appstorespy/telegram-configs/${id}`);
   }
 }

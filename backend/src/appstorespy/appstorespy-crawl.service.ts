@@ -134,7 +134,7 @@ export class AppStoreSpyCrawlService {
 	/**
 	 * Crawl daily data for a single app — fetches last 60 days (2 months)
 	 */
-	private async crawlAppData(
+	async crawlAppData(
 		appRecord: { id: number; appId: string; store: Store },
 		searchDataRef?: any
 	) {
@@ -169,6 +169,7 @@ export class AppStoreSpyCrawlService {
 					},
 					update: {
 						downloads: entry.ipd || 0,
+						rawResponse: entry as any,
 					},
 					create: {
 						trackedAppId: appRecord.id,
@@ -179,6 +180,7 @@ export class AppStoreSpyCrawlService {
 						ratingValue: searchDataRef?.rating_value ?? null,
 						version: searchDataRef?.version ?? null,
 						updatedDate: searchDataRef?.updated ? new Date(searchDataRef.updated) : null,
+						rawResponse: entry as any,
 					},
 				});
 			}
