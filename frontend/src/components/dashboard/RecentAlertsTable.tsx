@@ -57,8 +57,42 @@ export function RecentAlertsTable() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AppStoreSpyService.getAlerts({ limit: 8, page: 1 })
-      .then((res) => setAlerts(res.data))
+    AppStoreSpyService.getAlerts({ limit: 50, page: 1 })
+      .then((res) => {
+        const allAlerts = res.data;
+        // Group by trigger type
+        const nt1Args = allAlerts.filter(a => a.triggerType === 'NT1');
+        const nt2Args = allAlerts.filter(a => a.triggerType === 'NT2');
+        const nt3Args = allAlerts.filter(a => a.triggerType === 'NT3');
+
+        // We want 3 of each
+        const result: AppTriggerAlert[] = [];
+        const needed = { NT1: 3, NT2: 3, NT3: 3 };
+
+        // Take up to 3 for each
+        result.push(...nt1Args.splice(0, needed.NT1));
+        result.push(...nt2Args.splice(0, needed.NT2));
+        result.push(...nt3Args.splice(0, needed.NT3));
+
+        // Update needed counts based on what we actually got
+        needed.NT1 -= result.filter(a => a.triggerType === 'NT1').length;
+        needed.NT2 -= result.filter(a => a.triggerType === 'NT2').length;
+        needed.NT3 -= result.filter(a => a.triggerType === 'NT3').length;
+
+        const totalNeeded = needed.NT1 + needed.NT2 + needed.NT3;
+
+        // If we still need more to reach 9 total, fill from remaining
+        if (totalNeeded > 0) {
+          let remaining = [...nt1Args, ...nt2Args, ...nt3Args].sort(
+            (a, b) => new Date(b.triggerDate).getTime() - new Date(a.triggerDate).getTime()
+          );
+          result.push(...remaining.slice(0, totalNeeded));
+        }
+
+        // Final sort desc by time for display
+        result.sort((a, b) => new Date(b.triggerDate).getTime() - new Date(a.triggerDate).getTime());
+        setAlerts(result);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -69,7 +103,7 @@ export function RecentAlertsTable() {
           <Flame className="w-5 h-5 text-[#f59e0b]" />
           App tăng trưởng gần đây
         </h3>
-        <Link href="/store-monitoring" className="text-sm text-[#818cf8] hover:text-[#a5b4fc] transition-colors flex items-center gap-1">
+        <Link href="/app-tracking" className="text-sm text-[#818cf8] hover:text-[#a5b4fc] transition-colors flex items-center gap-1">
           Xem tất cả <ArrowRight className="w-4 h-4" />
         </Link>
       </div>

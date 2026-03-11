@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TelegramUserService } from '@/telegram-user/telegram-user.service';
+import { TelegramUserService } from '#root/telegram-user/telegram-user.service';
 
 describe('JobService', () => {
 	let service: TelegramUserService;
