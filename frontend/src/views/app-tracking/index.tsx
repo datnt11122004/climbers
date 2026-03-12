@@ -120,15 +120,15 @@ function Sparkline({ data }: SparklineProps) {
 // ─── Trigger badge ────────────────────────────────────────────────────────────
 
 function TriggerBadge({ type }: { type: string }) {
-  const cfg: Record<string, { cls: string; icon: React.ReactNode }> = {
-    NT1: { cls: 'bg-violet-500/20 text-violet-300', icon: <TrendingUp className="w-3 h-3" /> },
-    NT2: { cls: 'bg-orange-500/20 text-orange-300', icon: <AlertTriangle className="w-3 h-3" /> },
-    NT3: { cls: 'bg-emerald-500/20 text-emerald-300', icon: <Rocket className="w-3 h-3" /> },
+  const cfg: Record<string, { cls: string; icon: React.ReactNode; label: string }> = {
+    NT1: { cls: 'bg-violet-500/20 text-violet-300', icon: <TrendingUp className="w-3 h-3" />, label: 'NT1 – App đang đẩy lên đều' },
+    NT2: { cls: 'bg-orange-500/20 text-orange-300', icon: <AlertTriangle className="w-3 h-3" />, label: 'NT2 – App tự nhiên đẩy mạnh' },
+    NT3: { cls: 'bg-emerald-500/20 text-emerald-300', icon: <Rocket className="w-3 h-3" />, label: 'NT3 – App mới release mà đẩy được' },
   };
-  const c = cfg[type] ?? { cls: 'bg-[#334155] text-[#94a3b8]', icon: null };
+  const c = cfg[type] ?? { cls: 'bg-[#334155] text-[#94a3b8]', icon: null, label: type };
   return (
-    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${c.cls}`}>
-      {c.icon} {type}
+    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${c.cls}`} title={c.label}>
+      {c.icon} {c.label}
     </span>
   );
 }
@@ -212,7 +212,7 @@ function AddAppModal({ onClose, onAdded }: { onClose: () => void; onAdded: () =>
 
 // ─── Main View ────────────────────────────────────────────────────────────────
 
-type SortBy = 'downloads' | 'releaseDate' | 'createdAt';
+type SortBy = 'downloads' | 'releaseDate' | 'createdAt' | 'category' | 'triggerDate';
 
 export default function AppTrackingView() {
   const [apps, setApps] = useState<TrackedAppWithData[]>([]);
@@ -310,17 +310,17 @@ export default function AppTrackingView() {
               className="w-full px-3 py-2.5 rounded-xl bg-[#0f172a] border border-[#334155] text-sm focus:outline-none focus:border-[#6366f1] transition-colors text-[#f1f5f9]"
             >
               <option value="">Tất cả</option>
-              <option value="NT1">NT1 – Đẩy đều</option>
-              <option value="NT2">NT2 – Vụt lên</option>
-              <option value="NT3">NT3 – App mới release</option>
+              <option value="NT1">NT1 – App đang đẩy lên đều</option>
+              <option value="NT2">NT2 – App tự nhiên đẩy mạnh</option>
+              <option value="NT3">NT3 – App mới release mà đẩy được</option>
             </select>
           </div>
 
           {/* Sort */}
           <div className="flex-1 min-w-[150px]">
             <label className="text-xs font-medium text-[#64748b] mb-1.5 block">Sắp xếp theo</label>
-            <div className="flex gap-1.5">
-              {([['downloads', 'Installs'], ['releaseDate', 'Release'], ['createdAt', 'Thêm vào']] as [SortBy, string][]).map(([field, label]) => (
+            <div className="flex flex-wrap gap-1.5">
+              {([['downloads', 'Installs'], ['releaseDate', 'Release'], ['createdAt', 'Thêm vào'], ['category', 'Dòng'], ['triggerDate', 'Trigger']] as [SortBy, string][]).map(([field, label]) => (
                 <button
                   key={field}
                   onClick={() => toggleSort(field)}
@@ -381,7 +381,12 @@ export default function AppTrackingView() {
             <thead>
               <tr className="text-[#64748b] text-left border-b border-[#334155] bg-[#0f172a]/50">
                 <th className="px-4 py-4 font-medium">App</th>
-                <th className="px-4 py-4 font-medium">Dòng</th>
+                <th 
+                  className="px-4 py-4 font-medium cursor-pointer hover:text-[#f1f5f9] transition-colors select-none"
+                  onClick={() => toggleSort('category')}
+                >
+                  Dòng <SortIcon field="category" />
+                </th>
                 <th
                   className="px-4 py-4 font-medium text-right cursor-pointer hover:text-[#f1f5f9] transition-colors select-none"
                   onClick={() => toggleSort('downloads')}
@@ -390,6 +395,12 @@ export default function AppTrackingView() {
                 </th>
                 <th className="px-4 py-4 font-medium text-center">7 ngày</th>
                 <th className="px-4 py-4 font-medium">Trigger</th>
+                <th
+                  className="px-4 py-4 font-medium cursor-pointer hover:text-[#f1f5f9] transition-colors select-none"
+                  onClick={() => toggleSort('triggerDate')}
+                >
+                  Ngày kích hoạt <SortIcon field="triggerDate" />
+                </th>
                 <th
                   className="px-4 py-4 font-medium cursor-pointer hover:text-[#f1f5f9] transition-colors select-none"
                   onClick={() => toggleSort('releaseDate')}
@@ -462,6 +473,14 @@ export default function AppTrackingView() {
                           ? uniqueTriggers.map(t => <TriggerBadge key={t} type={t} />)
                           : <span className="text-[#475569]">—</span>}
                       </div>
+                    </td>
+                    <td className="px-4 py-4 text-xs font-medium text-[#f1f5f9]">
+                      {app.triggerAlerts.length > 0 
+                        ? (() => {
+                            const latest = [...app.triggerAlerts].sort((a,b) => new Date(b.triggerDate).getTime() - new Date(a.triggerDate).getTime())[0];
+                            return new Date(latest.triggerDate).toLocaleDateString('vi-VN');
+                          })()
+                        : <span className="text-[#475569]">—</span>}
                     </td>
                     <td className="px-4 py-4 text-xs text-[#64748b]">
                       {app.releaseDate ? new Date(app.releaseDate).toLocaleDateString('vi-VN') : '—'}

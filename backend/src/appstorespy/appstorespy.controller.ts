@@ -165,8 +165,7 @@ export class AppStoreSpyController {
 	}
 
 	@Get('tracked-apps')
-	@Roles(UserRole.ADMIN)
-	@ApiOperation({ summary: 'Get raw list of tracked apps (Admin)' })
+	@ApiOperation({ summary: 'Get raw list of tracked apps' })
 	async getTrackedApps() {
 		const apps = await this.prisma.trackedApp.findMany({
 			orderBy: { createdAt: 'desc' },
@@ -267,8 +266,7 @@ export class AppStoreSpyController {
 	}
 
 	@Get('alerts')
-	@Roles(UserRole.ADMIN)
-	@ApiOperation({ summary: 'Query app trigger alerts (NT1 / NT2 / NT3) (Admin)' })
+	@ApiOperation({ summary: 'Query app trigger alerts (NT1 / NT2 / NT3)' })
 	async getAlerts(@Query() query: QueryAlertsDto) {
 		const { triggerType, trackedAppId, from, to, page = 1, limit = 50 } = query;
 

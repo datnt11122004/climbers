@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { AppStoreSpyService } from '@/services/appstorespy.service';
-import { Layers, TrendingUp, BellRing, Activity } from 'lucide-react';
+import { Layers, TrendingUp, BellRing, Activity, Rocket } from 'lucide-react';
 
 type Stats = {
   trackedApps: number;
-  totalAlerts: number;
   nt1Count: number;
   nt2Count: number;
+  nt3Count: number;
 };
 
 export function DashboardStats() {
@@ -17,15 +17,15 @@ export function DashboardStats() {
   useEffect(() => {
     Promise.all([
       AppStoreSpyService.getTrackedApps(),
-      AppStoreSpyService.getAlerts({ limit: 1, page: 1 }),
       AppStoreSpyService.getAlerts({ triggerType: 'NT1', limit: 1, page: 1 }),
       AppStoreSpyService.getAlerts({ triggerType: 'NT2', limit: 1, page: 1 }),
-    ]).then(([apps, allAlerts, nt1, nt2]) => {
+      AppStoreSpyService.getAlerts({ triggerType: 'NT3', limit: 1, page: 1 }),
+    ]).then(([apps, nt1, nt2, nt3]) => {
       setStats({
         trackedApps: apps.length,
-        totalAlerts: allAlerts.meta.total,
         nt1Count: nt1.meta.total,
         nt2Count: nt2.meta.total,
+        nt3Count: nt3.meta.total,
       });
     });
   }, []);
@@ -39,25 +39,25 @@ export function DashboardStats() {
       badge: null,
     },
     {
-      icon: <TrendingUp className="w-6 h-6 text-[#06b6d4]" />,
-      bg: 'bg-[#06b6d4]/20',
-      value: stats?.totalAlerts ?? '—',
-      label: 'Tổng trigger alerts',
-      badge: null,
-    },
-    {
-      icon: <BellRing className="w-6 h-6 text-[#818cf8]" />,
+      icon: <TrendingUp className="w-6 h-6 text-[#818cf8]" />,
       bg: 'bg-violet-500/20',
       value: stats?.nt1Count ?? '—',
-      label: 'NT1 (Ổn định mạnh)',
+      label: 'App đang đẩy lên đều',
       badge: { text: 'NT1', cls: 'text-violet-400 bg-violet-500/10' },
     },
     {
       icon: <Activity className="w-6 h-6 text-[#f59e0b]" />,
       bg: 'bg-[#f59e0b]/20',
       value: stats?.nt2Count ?? '—',
-      label: 'NT2 (Đột biến)',
+      label: 'App tự nhiên đẩy mạnh',
       badge: { text: 'NT2', cls: 'text-orange-400 bg-orange-500/10' },
+    },
+    {
+      icon: <Rocket className="w-6 h-6 text-[#10b981]" />,
+      bg: 'bg-emerald-500/20',
+      value: stats?.nt3Count ?? '—',
+      label: 'App mới release mà đẩy được',
+      badge: { text: 'NT3', cls: 'text-emerald-400 bg-emerald-500/10' },
     },
   ];
 

@@ -113,7 +113,7 @@ export type AppsQuery = {
   triggerType?: 'NT1' | 'NT2' | 'NT3' | '';
   search?: string;
   triggeredOnly?: boolean;
-  sortBy?: 'downloads' | 'releaseDate' | 'createdAt';
+  sortBy?: 'downloads' | 'releaseDate' | 'createdAt' | 'category' | 'triggerDate';
   sortDir?: 'asc' | 'desc';
   page?: number;
   limit?: number;
