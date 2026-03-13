@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
-import { Save, Eye, EyeOff, Send, BellRing, TrendingUp, Store, Calendar, AlertTriangle, Zap, History, CheckCircle, XCircle } from 'lucide-react';
+import { Save, Eye, EyeOff, Send, BellRing, TrendingUp, Store, Calendar, AlertTriangle, Zap, History, CheckCircle, XCircle, Trash2, Plus } from 'lucide-react';
+import { AppStoreSpyService, TelegramBot, TelegramGroupConfig } from '@/services/appstorespy.service';
 
 const ToggleSwitch = ({ active, onChange }: { active: boolean, onChange: () => void }) => (
   <div 
@@ -15,12 +16,65 @@ const ToggleSwitch = ({ active, onChange }: { active: boolean, onChange: () => v
 
 export default function NotificationsView() {
   const [showToken, setShowToken] = useState(false);
+  const [bots, setBots] = useState<TelegramBot[]>([]);
+  const [configs, setConfigs] = useState<TelegramGroupConfig[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // New config form state
+  const [newConfig, setNewConfig] = useState({ botId: '', chatId: '', topicId: '', groupName: '' });
+
   const [toggles, setToggles] = useState({
     growth: true,
     newApp: true,
     dailyReport: false,
     systemAlert: true
   });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [fetchedBots, fetchedConfigs] = await Promise.all([
+        AppStoreSpyService.getBots(),
+        AppStoreSpyService.getTelegramConfigs()
+      ]);
+      setBots(fetchedBots || []);
+      setConfigs(fetchedConfigs || []);
+    } catch (error) {
+      console.error('Failed to load telegram configs', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateConfig = async () => {
+    if (!newConfig.botId || !newConfig.chatId) return;
+    try {
+      await AppStoreSpyService.createTelegramConfig({
+        botId: Number(newConfig.botId),
+        chatId: newConfig.chatId,
+        topicId: newConfig.topicId ? Number(newConfig.topicId) : undefined,
+        groupName: newConfig.groupName || undefined,
+        active: true
+      });
+      setNewConfig({ botId: '', chatId: '', topicId: '', groupName: '' });
+      await fetchData();
+    } catch (error) {
+      console.error('Failed to create config', error);
+    }
+  };
+
+  const handleDeleteConfig = async (id: number) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa cấu hình này?')) return;
+    try {
+      await AppStoreSpyService.deleteTelegramConfig(id);
+      await fetchData();
+    } catch (error) {
+      console.error('Failed to delete config', error);
+    }
+  };
 
   return (
     <>
@@ -33,43 +87,107 @@ export default function NotificationsView() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Telegram Config */}
-        <div className="glass-card rounded-2xl p-6 animate-in animate-in-delay-1">
-          <h3 className="text-lg font-semibold flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-[#0088cc]/20 flex items-center justify-center">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#0088cc">
-                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-              </svg>
-            </div>
-            Kết nối Telegram
-          </h3>
-          <div className="space-y-5">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20">
-              <div className="w-3 h-3 rounded-full bg-[#22c55e] animate-pulse"></div>
-              <span className="text-sm text-[#22c55e] font-medium">Đã kết nối thành công</span>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-[#94a3b8] mb-2 block">Bot Token</label>
-              <div className="relative">
-                <input type={showToken ? "text" : "password"} defaultValue="1234567890:ABCDefghijklmnopqrstUVWXYZ" className="w-full px-4 py-3 rounded-xl bg-[#0f172a] border border-[#334155] text-sm focus:outline-none focus:border-[#6366f1] transition-colors font-mono pr-12 text-[#f1f5f9]" />
-                <button className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748b] hover:text-[#f1f5f9] transition-colors" onClick={() => setShowToken(!showToken)}>
-                  {showToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+        <div className="glass-card rounded-2xl p-6 animate-in animate-in-delay-1 flex flex-col h-[500px]">
+          <h3 className="text-lg font-semibold flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#0088cc]/20 flex items-center justify-center">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#0088cc">
+                  <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                </svg>
               </div>
-              <p className="text-xs text-[#64748b] mt-1.5">Lấy token từ @BotFather trên Telegram</p>
+              Kết nối Telegram
             </div>
-            <div>
-              <label className="text-sm font-medium text-[#94a3b8] mb-2 block">Chat ID - UA Team</label>
-              <input type="text" defaultValue="-1001234567890" className="w-full px-4 py-3 rounded-xl bg-[#0f172a] border border-[#334155] text-sm focus:outline-none focus:border-[#6366f1] transition-colors font-mono text-[#f1f5f9]" />
-              <p className="text-xs text-[#64748b] mt-1.5">Group/Channel ID cho team UA</p>
+          </h3>
+
+          <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4 custom-scrollbar">
+            {loading ? (
+              <div className="text-center text-sm text-[#64748b] py-8">Đang tải...</div>
+            ) : configs.length === 0 ? (
+              <div className="text-center text-sm text-[#64748b] py-8 border border-dashed border-[#334155] rounded-xl">
+                Chưa có cấu hình nào. Hãy thêm mới bên dưới.
+              </div>
+            ) : (
+              configs.map(config => (
+                <div key={config.id} className="p-4 rounded-xl bg-[#0f172a]/50 border border-[#334155] group relative overflow-hidden">
+                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={() => handleDeleteConfig(config.id)}
+                      className="p-1.5 rounded-lg bg-[#ef4444]/10 text-[#ef4444] hover:bg-[#ef4444]/20 transition-colors"
+                      title="Xóa cấu hình"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-semibold text-[#f1f5f9]">{config.groupName || config.chatId}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${config.active ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-[#64748b]/20 text-[#64748b]'}`}>
+                      {config.active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div className="space-y-1 text-xs text-[#94a3b8]">
+                    <div className="flex justify-between">
+                      <span>Bot: <span className="text-[#e2e8f0]">{config.bot?.name || `ID: ${config.botId}`}</span></span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-mono">Chat ID: {config.chatId}</span>
+                    </div>
+                    {config.topicId && (
+                      <div className="flex justify-between">
+                        <span className="font-mono">Topic: {config.topicId}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="pt-4 border-t border-[#334155] mt-auto">
+            <h4 className="text-sm font-semibold text-[#e2e8f0] mb-3">Thêm cấu hình mới</h4>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <select 
+                  className="w-full px-3 py-2 rounded-xl bg-[#0f172a] border border-[#334155] text-sm focus:outline-none focus:border-[#6366f1] transition-colors text-[#f1f5f9]"
+                  value={newConfig.botId}
+                  onChange={e => setNewConfig({...newConfig, botId: e.target.value})}
+                >
+                  <option value="">Chọn Bot...</option>
+                  {bots.filter(b => b.active).map(bot => (
+                    <option key={bot.id} value={bot.id}>{bot.name}</option>
+                  ))}
+                </select>
+                <input 
+                  type="text" 
+                  placeholder="Chat/Group ID (*)" 
+                  className="w-full px-3 py-2 rounded-xl bg-[#0f172a] border border-[#334155] text-sm focus:outline-none focus:border-[#6366f1] transition-colors font-mono text-[#f1f5f9]"
+                  value={newConfig.chatId}
+                  onChange={e => setNewConfig({...newConfig, chatId: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <input 
+                  type="text" 
+                  placeholder="Topic ID (Tùy chọn)" 
+                  className="w-full px-3 py-2 rounded-xl bg-[#0f172a] border border-[#334155] text-sm focus:outline-none focus:border-[#6366f1] transition-colors font-mono text-[#f1f5f9]"
+                  value={newConfig.topicId}
+                  onChange={e => setNewConfig({...newConfig, topicId: e.target.value})}
+                />
+                <input 
+                  type="text" 
+                  placeholder="Tên gợi nhớ (Tùy chọn)" 
+                  className="w-full px-3 py-2 rounded-xl bg-[#0f172a] border border-[#334155] text-sm focus:outline-none focus:border-[#6366f1] transition-colors text-[#f1f5f9]"
+                  value={newConfig.groupName}
+                  onChange={e => setNewConfig({...newConfig, groupName: e.target.value})}
+                />
+              </div>
+              <button 
+                className="w-full flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl bg-[#6366f1] text-white text-sm font-medium hover:bg-[#4f46e5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={handleCreateConfig}
+                disabled={!newConfig.botId || !newConfig.chatId}
+              >
+                <Plus className="w-4 h-4" /> Thêm Group
+              </button>
             </div>
-            <div>
-              <label className="text-sm font-medium text-[#94a3b8] mb-2 block">Chat ID - Monetize Team</label>
-              <input type="text" defaultValue="-1009876543210" className="w-full px-4 py-3 rounded-xl bg-[#0f172a] border border-[#334155] text-sm focus:outline-none focus:border-[#6366f1] transition-colors font-mono text-[#f1f5f9]" />
-              <p className="text-xs text-[#64748b] mt-1.5">Group/Channel ID cho team Monetize</p>
-            </div>
-            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0088cc]/20 text-[#0088cc] text-sm font-medium hover:bg-[#0088cc]/30 transition-colors">
-              <Send className="w-4 h-4" /> Gửi tin nhắn test
-            </button>
           </div>
         </div>
 

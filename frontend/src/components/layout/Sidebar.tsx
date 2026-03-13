@@ -17,12 +17,12 @@ export function Sidebar() {
     { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
     // { href: '/app-categories', icon: Layers, label: 'Theo dõi Dòng App' },
     { href: '/app-tracking', icon: TrendingUp, label: 'Theo dõi App' },
-    { href: '/notifications', icon: Bell, label: 'Cài đặt Thông báo' },
   ];
 
   const adminLinks = [
     { href: '/admin-categories', icon: Settings, label: 'Quản lý Danh mục' },
     { href: '/store-monitoring', icon: Activity, label: 'AppStoreSpy Monitor' },
+    { href: '/notifications', icon: Bell, label: 'Cài đặt Thông báo' },
   ];
 
   const isAdmin = user?.role === 'ADMIN';

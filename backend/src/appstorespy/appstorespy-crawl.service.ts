@@ -44,59 +44,28 @@ export class AppStoreSpyCrawlService {
 			let totalAppsFound = 0;
 			const errors: string[] = [];
 
-			// Crawl Google Play top apps using POST /play/apps/query
-			// Filter: downloads_daily >= 2000, sort: release_date desc
-			this.logger.log(`Fetching apps from AppStoreSpy Query API (downloads_daily >= 2000)...`);
+			// Crawl all active apps from the database
+			this.logger.log(`Fetching active apps from database for daily crawl...`);
 
-			for (let page = 1; page <= this.MAX_PAGES; page++) {
-				const apps = await this.appStoreSpyService.queryPlayApps(page, 100);
+			const apps = await this.prisma.trackedApp.findMany({
+				where: { active: true },
+			});
 
-				if (!apps || !apps.length) {
-					this.logger.log(`No more apps found on page ${page}. Stopping.`);
-					break;
-				}
+			totalAppsFound = apps.length;
+			this.logger.log(`Processing ${apps.length} active apps...`);
 
-				totalAppsFound += apps.length;
-				this.logger.log(`Processing page ${page}/${this.MAX_PAGES} — ${apps.length} apps found`);
+			for (const app of apps) {
+				try {
+					// Fetch & save daily installs
+					await this.crawlAppData(app);
+					processedCount++;
 
-				for (const app of apps) {
-					try {
-						const bundleId = app.id; // query API returns `id` (bundle id)
-
-						// 1. Upsert TrackedApp in DB
-						const trackedApp = await this.prisma.trackedApp.upsert({
-							where: {
-								appId_store: { appId: bundleId, store: Store.PLAY },
-							},
-							update: {
-								name: app.name || bundleId,
-								category: app.category || null,
-								icon: app.icon || null,
-								...(app.release_date && { releaseDate: new Date(app.release_date) }),
-								active: true,
-							},
-							create: {
-								appId: bundleId,
-								store: Store.PLAY,
-								name: app.name || bundleId,
-								category: app.category || null,
-								icon: app.icon || null,
-								...(app.release_date && { releaseDate: new Date(app.release_date) }),
-								active: true,
-							},
-						});
-
-						// 2. Fetch & save daily installs
-						await this.crawlAppData(trackedApp, app);
-						processedCount++;
-
-						// Throttle to avoid rate limit
-						await new Promise(resolve => setTimeout(resolve, 300));
-					} catch (error) {
-						const msg = `Error crawling ${app.id}: ${error?.message || error}`;
-						this.logger.error(msg);
-						errors.push(msg);
-					}
+					// Throttle to avoid rate limit
+					await new Promise(resolve => setTimeout(resolve, 300));
+				} catch (error) {
+					const msg = `Error crawling ${app.appId}: ${error?.message || error}`;
+					this.logger.error(msg);
+					errors.push(msg);
 				}
 			}
 
@@ -168,13 +137,13 @@ export class AppStoreSpyCrawlService {
 						},
 					},
 					update: {
-						downloads: entry.ipd || 0,
+						downloads: entry.installs || 0,
 						rawResponse: entry as any,
 					},
 					create: {
 						trackedAppId: appRecord.id,
 						date: entryDate,
-						downloads: entry.ipd || 0,
+						downloads: entry.installs || 0,
 						revenue: 0,
 						ratingCount: searchDataRef?.rating_count ?? null,
 						ratingValue: searchDataRef?.rating_value ?? null,
