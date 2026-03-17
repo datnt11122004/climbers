@@ -246,6 +246,32 @@ export class AppStoreSpyTriggerService {
             }
         }
 
+        // ─── New Release Notification (Non-trigger) ───────
+        // Notify if releaseDate is within last 7 days AND not yet notified
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        if (
+            trackedApp.releaseDate &&
+            trackedApp.releaseDate >= sevenDaysAgo &&
+            !trackedApp.releaseNotifiedAt
+        ) {
+            await this.notifyService.sendNewReleaseNotification({
+                name: trackedApp.name,
+                appId: trackedApp.appId,
+                releaseDate: trackedApp.releaseDate
+            });
+
+            await this.prisma.trackedApp.update({
+                where: { id: trackedAppId },
+                data: { releaseNotifiedAt: today }
+            });
+
+            this.logger.log(
+                `🆕 Sent New Release notification for app #${trackedAppId}: ${trackedApp.name}`
+            );
+        }
+
         return alertsCreated;
     }
 }

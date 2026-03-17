@@ -114,6 +114,7 @@ model TrackedApp {
   category    String?   @db.VarChar(100)
   icon        String?   @db.VarChar(1000)
   releaseDate DateTime? @map("release_date") @db.Date
+  releaseNotifiedAt DateTime? @map("release_notified_at")
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")

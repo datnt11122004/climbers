@@ -133,18 +133,14 @@ export class AppStoreSpyNotifyService {
     async sendTestMessage(configId: number) {
         const config = await this.prisma.telegramGroupConfig.findUnique({
             where: { id: configId },
-            include: { bot: true }
+            include: { bot: true },
         });
 
         if (!config) throw new Error(`Configuration #${configId} not found`);
-        if (!config.bot?.active || !config.bot?.name)
-            throw new Error(
-                `Bot for configuration #${configId} is inactive or not named`
-            );
+        if (!config.bot?.active || !config.bot?.name) throw new Error(`Bot for configuration #${configId} is inactive or not named`);
 
         const runningBot = BotManager.getBot(config.bot.name);
-        if (!runningBot)
-            throw new Error(`Bot ${config.bot.name} is not running`);
+        if (!runningBot) throw new Error(`Bot ${config.bot.name} is not running`);
 
         const message = `🔔 *Test Notification*\n\nThis is a test message to verify the connection for configuration: *${config.groupName || config.chatId}*.\n\n✅ Bot: *${config.bot.name}*\n🚀 Status: *Success*`;
 
@@ -154,8 +150,45 @@ export class AppStoreSpyNotifyService {
         }
 
         await runningBot.api.sendMessage(config.chatId, message, opts);
-        this.logger.log(
-            `📨 Sent test message to Telegram config #${config.id} (Chat: ${config.chatId}, Topic: ${config.topicId || 'none'}) using bot ${config.bot.name}`
-        );
+        this.logger.log(`📨 Sent test message to Telegram config #${config.id} (Chat: ${config.chatId}, Topic: ${config.topicId || 'none'}) using bot ${config.bot.name}`);
+    }
+
+    /**
+     * Send a notification for a newly released app
+     */
+    async sendNewReleaseNotification(app: { name: string; appId: string; releaseDate?: Date | null }) {
+        const playUrl = `https://play.google.com/store/apps/details?id=${app.appId}`;
+        const message = [
+            `🆕 *App vừa mới được release*`,
+            ``,
+            `📱 Tên app mới: *${app.name}*`,
+            `🔗 App URL: ${playUrl}`,
+            app.releaseDate ? `📅 Ngày release: ${new Date(app.releaseDate).toLocaleDateString('vi-VN')}` : '',
+            ``,
+            `#appstorespy #newrelease`,
+        ].filter(line => line !== '').join('\n');
+
+        // Fetch all active telegram group configurations
+        const groupConfigs = await this.prisma.telegramGroupConfig.findMany({
+            where: { active: true },
+            include: { bot: true },
+        });
+
+        for (const config of groupConfigs) {
+            if (!config.bot?.active || !config.bot?.name) continue;
+
+            const runningBot = BotManager.getBot(config.bot.name);
+            if (!runningBot) continue;
+
+            try {
+                const opts: any = { parse_mode: 'Markdown' };
+                if (config.topicId) {
+                    opts.message_thread_id = config.topicId;
+                }
+                await runningBot.api.sendMessage(config.chatId, message, opts);
+            } catch (err: any) {
+                this.logger.error(`Failed to send New Release notification to config #${config.id}: ${err?.message}`);
+            }
+        }
     }
 }
