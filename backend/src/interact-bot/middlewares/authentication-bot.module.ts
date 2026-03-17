@@ -4,8 +4,8 @@ import { TelegramUserModule } from '#root/telegram-user/telegram-user.module';
 
 @Global()
 @Module({
-	imports: [TelegramUserModule],
-	providers: [AuthenticationBotService],
-	exports: [AuthenticationBotService],
+    imports: [TelegramUserModule],
+    providers: [AuthenticationBotService],
+    exports: [AuthenticationBotService]
 })
 export class AuthenticationBotModule {}

@@ -4,26 +4,26 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BaseFeature extends Composer<Context> {
-	constructor() {
-		super();
-	}
+    constructor() {
+        super();
+    }
 
-	private static COMMAND: string;
-	private static ALIAS: string[];
+    private static COMMAND: string;
+    private static ALIAS: string[];
 
-	public set COMMAND(value: string) {
-		BaseFeature.COMMAND = value;
-	}
+    public set COMMAND(value: string) {
+        BaseFeature.COMMAND = value;
+    }
 
-	public set ALIAS(value: string[]) {
-		BaseFeature.ALIAS = value;
-	}
+    public set ALIAS(value: string[]) {
+        BaseFeature.ALIAS = value;
+    }
 
-	public get COMMAND(): string {
-		return BaseFeature.COMMAND;
-	}
+    public get COMMAND(): string {
+        return BaseFeature.COMMAND;
+    }
 
-	public get ALIAS(): string[] {
-		return BaseFeature.ALIAS;
-	}
+    public get ALIAS(): string[] {
+        return BaseFeature.ALIAS;
+    }
 }

@@ -7,17 +7,22 @@ import { Logger } from '@nestjs/common';
  * This class provides a protected method to handle bot errors and log them.
  * It also sends the error to Sentry.
  */
-export class TelegramBot<C extends Context = Context, A extends Api = Api> extends Bot<C, A> {
-	private readonly logger = new Logger(TelegramBot.name);
+export class TelegramBot<
+    C extends Context = Context,
+    A extends Api = Api
+> extends Bot<C, A> {
+    private readonly logger = new Logger(TelegramBot.name);
 
-	constructor(token: string, config?: BotConfig<C>) {
-		super(token, config);
-		this.catch(this.handleError);
-	}
+    constructor(token: string, config?: BotConfig<C>) {
+        super(token, config);
+        this.catch(this.handleError);
+    }
 
-	private handleError(botError: BotError) {
-		this.logger.error(`${this.botInfo.username}: Error when handling update`);
-		this.logger.error(`Bot error message: ${botError.message}`);
-		this.logger.error(`Error: ${botError.error}`);
-	}
+    private handleError(botError: BotError) {
+        this.logger.error(
+            `${this.botInfo.username}: Error when handling update`
+        );
+        this.logger.error(`Bot error message: ${botError.message}`);
+        this.logger.error(`Error: ${botError.error}`);
+    }
 }

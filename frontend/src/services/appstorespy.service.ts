@@ -222,4 +222,9 @@ export class AppStoreSpyService {
   static async deleteTelegramConfig(id: number): Promise<void> {
     await HttpClient.delete(`/appstorespy/telegram-configs/${id}`);
   }
+
+  static async testTelegramConfig(id: number): Promise<{ message: string }> {
+    const res = await HttpClient.post<ApiSingleResponse<{ message: string }>>(`/appstorespy/telegram-configs/${id}/test`);
+    return res.data;
+  }
 }

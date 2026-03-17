@@ -76,6 +76,16 @@ export default function NotificationsView() {
     }
   };
 
+  const handleTestConfig = async (id: number) => {
+    try {
+      await AppStoreSpyService.testTelegramConfig(id);
+      alert('Đã gửi tin nhắn test thành công!');
+    } catch (error: any) {
+      console.error('Failed to test config', error);
+      alert('Gửi tin nhắn test thất bại: ' + (error.message || 'Lỗi không xác định'));
+    }
+  };
+
   return (
     <>
       <div className="flex items-center justify-between mb-8 animate-in">
@@ -109,7 +119,14 @@ export default function NotificationsView() {
             ) : (
               configs.map(config => (
                 <div key={config.id} className="p-4 rounded-xl bg-[#0f172a]/50 border border-[#334155] group relative overflow-hidden">
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={() => handleTestConfig(config.id)}
+                      className="p-1.5 rounded-lg bg-[#6366f1]/10 text-[#6366f1] hover:bg-[#6366f1]/20 transition-colors"
+                      title="Test thông báo"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
                     <button 
                       onClick={() => handleDeleteConfig(config.id)}
                       className="p-1.5 rounded-lg bg-[#ef4444]/10 text-[#ef4444] hover:bg-[#ef4444]/20 transition-colors"

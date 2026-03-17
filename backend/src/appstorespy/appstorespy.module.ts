@@ -7,14 +7,18 @@ import { AppStoreSpyController } from './appstorespy.controller';
 import { AuthModule } from '#root/auth/auth.module';
 
 @Module({
-	providers: [
-		AppStoreSpyService,
-		AppStoreSpyNotifyService,
-		AppStoreSpyTriggerService,
-		AppStoreSpyCrawlService,
-	],
-	controllers: [AppStoreSpyController],
-	exports: [AppStoreSpyService, AppStoreSpyCrawlService],
-	imports: [AuthModule],
+    providers: [
+        AppStoreSpyService,
+        AppStoreSpyNotifyService,
+        AppStoreSpyTriggerService,
+        AppStoreSpyCrawlService
+    ],
+    controllers: [AppStoreSpyController],
+    exports: [
+        AppStoreSpyService,
+        AppStoreSpyCrawlService,
+        AppStoreSpyNotifyService
+    ],
+    imports: [AuthModule]
 })
 export class AppStoreSpyModule {}

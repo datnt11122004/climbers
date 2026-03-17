@@ -11,22 +11,20 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AppStoreSpyModule } from '#root/appstorespy/appstorespy.module';
 
 @Module({
-	imports: [
-		// Global modules
-		ScheduleModule.forRoot(),
-		AppConfigModule,
-		PrismaModule,
+    imports: [
+        // Global modules
+        ScheduleModule.forRoot(),
+        AppConfigModule,
+        PrismaModule,
 
-		// Feature modules
-		AuthModule,
-		BotModule,
-		InteractBotModule,
-		CategoryModule,
-		AppStoreSpyModule,
-	],
-	controllers: [AppController],
-	providers: [],
+        // Feature modules
+        AuthModule,
+        BotModule,
+        InteractBotModule,
+        CategoryModule,
+        AppStoreSpyModule
+    ],
+    controllers: [AppController],
+    providers: []
 })
 export class AppModule {}
-
-

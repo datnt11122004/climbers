@@ -1,31 +1,39 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import {
+    ExceptionFilter,
+    Catch,
+    ArgumentsHost,
+    HttpException,
+    HttpStatus
+} from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ApiResponse } from '../types';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-	constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+    constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
-	catch(exception: unknown, host: ArgumentsHost): void {
-		console.error(exception);
-		const { httpAdapter } = this.httpAdapterHost;
+    catch(exception: unknown, host: ArgumentsHost): void {
+        console.error(exception);
+        const { httpAdapter } = this.httpAdapterHost;
 
-		const ctx = host.switchToHttp();
+        const ctx = host.switchToHttp();
 
-		const httpStatus =
-			exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+        const httpStatus =
+            exception instanceof HttpException
+                ? exception.getStatus()
+                : HttpStatus.INTERNAL_SERVER_ERROR;
 
-		const apiResponse: any = ApiResponse.Error(httpStatus);
-		if (exception instanceof Error) {
-			apiResponse.withMessage(exception.message);
-		} else {
-			apiResponse.withMessage(exception.toString());
-		}
+        const apiResponse: any = ApiResponse.Error(httpStatus);
+        if (exception instanceof Error) {
+            apiResponse.withMessage(exception.message);
+        } else {
+            apiResponse.withMessage(exception.toString());
+        }
 
-		apiResponse.timestamp = new Date().toISOString();
-		apiResponse.path = httpAdapter.getRequestUrl(ctx.getRequest());
-		apiResponse.source = 'AllExceptionsFilter';
+        apiResponse.timestamp = new Date().toISOString();
+        apiResponse.path = httpAdapter.getRequestUrl(ctx.getRequest());
+        apiResponse.source = 'AllExceptionsFilter';
 
-		httpAdapter.reply(ctx.getResponse(), apiResponse, httpStatus);
-	}
+        httpAdapter.reply(ctx.getResponse(), apiResponse, httpStatus);
+    }
 }
